@@ -1,0 +1,376 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background-color: rgb(220, 239, 248);
+  /* background-color: gray; */
+}
+
+.whole-container {
+  height: 100vh;
+  /* background-color: rgba(219, 21, 21, 0.1); */
+}
+
+.main-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  /* height: 35%; Set a fixed reduced height as needed */
+  overflow: hidden;
+  /* justify-content: space-between; */
+}
+
+.form-section {
+  background-color: rgb(255, 254, 254);
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 200px;
+  width: 35%;
+  margin: 2px;
+  flex: 1; /* Makes both form sections take equal width */
+}
+.form-section1 {
+  /* background-color:  rgb(238, 223, 223); */
+  background-color: rgb(255, 254, 254);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 35%;
+  margin: 2px;
+  overflow-y: auto;
+  height: 200px; /* Match parent height */
+}
+
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+  /* width: 100%; */
+  flex: 1; /* Distribute height equally if needed */
+}
+
+.form-row label {
+  width: 120px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.form-row input[type="text"],
+.form-row input[type="date"],.form-row select {
+  flex: 1; /* Take remaining space */
+padding-top: 0PX;
+  padding-left: 8px;
+  margin-left: 0px; /* Optional spacing between label and input */
+}
+
+.form-row .small-label {
+  width: auto;
+  margin-left: 5px;
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+.form-row .small-input {
+  width: 100px;
+  /* padding: 5px; */
+  /* margin-bottom: 20px; */
+}
+
+
+.form-section3 {
+  background-color: rgb(255, 254, 254);
+  padding: 10px;
+  width: 20%;
+  border-radius: 10px;
+  margin: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  height: 200px;
+}
+.radio-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: space-between;
+}
+
+.radio-buttons input[type="radio"] {
+  display: none;
+}
+
+.radio-buttons label {
+  padding: 5px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  /* font-weight: 300; */
+  transition: all 0.3s ease;
+  font-size: small;
+}
+
+.radio-buttons input[type="radio"]:checked + label {
+  background-color: #007bff;
+  color: white;
+  /* border-color: #0056b3; */
+}
+
+.ptag {
+  font-weight: bold;
+  /* margin-left: 150px; */
+}
+.button-pair{
+  margin-top: 10px;
+}
+.button-pair1 {
+  padding: 10px 10px;
+  /* background-color: rgb(72, 98, 243); */
+  background-color: #a6f88d;
+  border-radius: 8px;
+  border: none;
+  width: 47%;
+}
+.button-pair1:hover {
+  background-color: #0a8a2a;
+  color: #ffffff;
+}
+.marquee-wrapper {
+  width: 100%;
+  overflow: hidden;
+  background: #f9f9f9;
+  /* border: 1px solid #ccc; */
+  margin-top: 10px;
+  padding: 5px 0;
+}
+
+.marquee-text {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scroll-left 10s linear infinite;
+  font-weight: bold;
+  color: #6d4fd9; /* red color for emphasis */
+  padding-left: 100%; /* Start off screen */
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.table-design {
+  /* background-color: rgb(238, 238, 238); */
+/* background-color: rgba(182, 178, 178, 0.644); */
+background-color: rgb(149, 212, 219);
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+
+  margin-top: 5px;
+  overflow-x: auto; /* prevent overflow breaking */
+  flex-wrap: nowrap; /* keeps everything in one row */
+}
+table {
+  width: 100%;
+  /* border-collapse: collapse; */
+}
+.highlighted-row {
+  box-shadow: 4px 4px 12px rgba(227, 220, 220, 0.5); /* Stronger 3D shadow */
+  transform: translateY(-2px); /* Slight upward lift */
+  z-index: 1; /* Stay above other rows */
+  position: relative; /* Required for z-index to apply */
+}
+.highlighted-row td {
+  border: 2px solid #f9f9f9; /* Clear border for 3D boundary */
+  /* padding: 10px; */
+  background-color: #ffffff;
+}
+.scroll-area {
+  width: 99%;
+  border: 2px solid #333; /* Border around the whole table container */
+  height: 240px; /* Set a fixed height for scrolling */
+  overflow: auto; /* Enables scroll bar */
+  /* padding: 5px; */
+  margin-left: 5px;
+  margin-right: 10px;
+  background-color: #ffffff;
+  overflow-x: auto; /* enables horizontal scroll */
+  white-space: nowrap; /* prevents wrapping */
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: nowrap;
+  min-width: max-content; /* Forces content to stretch beyond container if needed */
+}
+
+.row p {
+  margin: 0;
+  padding: 5px;
+  font-weight: bold;
+  white-space: nowrap; /* prevent text wrapping */
+}
+
+.main-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  padding: 5px;
+}
+.vertical {
+  display: flex;
+
+  background-color: rgb(149, 212, 219);
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 50%;
+  height: 200px;
+}
+.vertical .checkbox {
+  height: 200px;
+  width: 50%;
+  display: flex;
+  background-color: #a6f88d;
+  padding: 8px;
+}
+.vertical table {
+  width: 50%;
+  padding: 5px;
+  text-align: end;
+}
+li{
+  margin-top: 5px;
+}
+.finalrow {
+  height: 30px; /* height of the row */
+  width: 79.5%; /* content width */
+  background-color: rgb(238, 223, 223);
+  margin-right: 30px;
+  margin-left: 5px;
+  margin-top: 10px;
+  border-radius: 4px; /* optional: to round corners slightly */
+}
+.check {
+  display: flex; 
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 50%;
+  
+}
+.c1{
+  margin-right: 5px;
+}
+
+.form-group {
+  display: flex;
+  /* margin-left: 50px; */
+  margin-top: 5px;
+  flex-direction: column; /* Stack label and input vertically */
+  flex: 1; /* Allow form groups to grow equally */
+  /* margin-left: 40px; */
+  /* justify-content: space-between; */
+}
+.form-group input {
+  /* width: 80%; */
+}
+
+table input[type="text"] {
+  width: 100%;
+  border: none;
+  background: transparent;
+  /* padding: 6px; */
+  font-size: 14px;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  background-color: #f0f8ff;
+}
+
+.highlighted-row:hover {
+  /* background-color: #f9f9f9; */
+}
+
+.yellow-bg {
+  /* background-color: #fffecb !important; */
+  background-color: #f7f467 !important;
+}
+
+.green-bg {
+  /* background-color: #d1f7d1 !important; */
+  /* background-color: #7efa66 !important; */
+  background-color: #a6f88d !important
+  /* background-color: #368121; */
+}
+
+.blue-bg {
+  /* background-color: #d1e8ff !important; */
+  background-color: #6db2f7 !important;
+}
+/* .scroll-area {
+  width: 100%;
+  border: 2px solid #333;
+  height: 170px;
+  overflow: auto;
+  margin: 10px;
+} */
+
+.scroll-area table {
+  width: 100%;
+  border-collapse: collapse;
+  /* min-width: 800px; optional for horizontal scroll */
+}
+
+.scroll-area th,
+.scroll-area td {
+  border: 1px solid #999;
+  padding: 3px 3px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.scroll-area thead {
+  background-color: #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.iconsDiv {
+  width: 50%;
+  height: 200px;
+  background-color: #8fd1f1;
+}
+.iconsDiv button {
+  height: 80px;
+  width: 90px;
+  margin-top: 3px;
+  border-radius: 5px;
+  border: none;
+}
+.iconsDiv button:hover{
+  background-color: #368121;
+  color: #fff;
+}
+
+

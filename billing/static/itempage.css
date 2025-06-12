@@ -1,0 +1,147 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: Arial, sans-serif;
+  background: rgb(220, 239, 248);
+  margin: 0;
+  padding: 5px;
+}
+
+/* .container {
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      max-width: 1200px;
+      margin: auto;
+    } */
+
+.top {
+  /* display: grid; */
+  display: flex;
+  /* grid-template-columns: repeat(6, 1fr); */
+  /* gap: 10px; */
+  justify-content: space-between;
+  margin-bottom: 5px;
+  width: 100%;
+  background-color: #fdfcfc;
+  padding: 5px;
+  border-radius: 5px;
+}
+.top1 {
+  width: 100%;
+}
+.topserch {
+  display: flex;
+  margin-bottom: 5px;
+}
+.inputtop1 {
+  margin-left: 5px;
+  width: 90%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+.inputtop {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.input {
+  /* select, button { */
+  padding: 8px;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 45%;
+  background-color: #a6f88d;
+}
+.btn-secondary {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+    color: #070707;
+  cursor: pointer;
+  border: none;
+}
+.btn {
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  border: none;
+}
+
+
+
+.filter-buttons {
+  margin-bottom: 5px;
+  background-color: #fff;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.filter-buttons button {
+  margin: 4px;
+}
+.filter-buttons button:hover{
+  background-color: #368121;
+  color: #fff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  /* margin-top: 10px; */
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+th {
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+td {
+  padding: 5px;
+  border: 1px solid #ccc;
+  font-size: 12px;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background-color: #e9ecef;
+  z-index: 1;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #050505;
+  background-color: #fdfcfc;
+  padding: 10px;
+  border-radius: 5px;
+}
+.tableDiv {
+  height: 350px;
+  border: 1px solid #555;
+  overflow-x: auto;
+  border-radius: 5px;
+  background-color: #fff;
+}
+.selected {
+  background-color: #cce5ff !important;
+}
+

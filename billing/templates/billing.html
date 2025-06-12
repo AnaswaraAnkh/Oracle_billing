@@ -1,0 +1,275 @@
+<!-- <!DOCTYPE html> -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard Layout</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='billing.css') }}">
+
+
+  
+</head>
+<body>
+   <div class="whole-container">
+    <div class="main-container">
+        <div class="form-section">
+              <div class="form-row">
+                <label>Customer Name:</label>
+                <input type="text" placeholder="Enter customername" value="{{ selected_customer[2] if selected_customer else '' }}">
+
+              </div>
+              <div class="form-row">
+                <label>Salesman Name:</label>
+                <input type="text" placeholder="Enter customername" value="{{ selected_customer[11] if selected_customer else '' }}">
+              </div>
+              <div class="form-row">
+                <label>Type of Invoice:</label>
+                <input type="text" placeholder="Enter customername" value="{{ selected_customer[13] if selected_customer else '' }}">
+
+                <label class="small-label">Session:</label>
+                <input type="text" class="small-input" placeholder="Session">
+              </div>
+              <div class="form-row">
+                <label>Address:</label>
+                <input type="text" placeholder="Enter customername" value="{{ selected_customer[3] if selected_customer else '' }}">
+                <label class="small-label">Online:</label>
+                <input type="text" class="small-input" placeholder="Online">
+              </div>
+              <div class="form-row">
+                <label>Remark:</label>
+                <input type="text" placeholder="Enter remark">
+              </div>
+              <div class="form-row">
+                <label>Quotation No:</label>
+                <input type="text" placeholder="Enter quotation number">
+              </div>
+            </div>
+    
+            <!-- Middle Form Section -->
+            <div class="form-section1">
+              <div class="form-row">
+                <label>Invoice number:</label>
+                <input type="text" placeholder="Enter invoice number">
+              </div>
+              <div class="form-row">
+                <label>Invoice Date:</label>
+                <input type="date">
+              </div>
+              <div class="form-row">
+                <label>Time:</label>
+                <input type="text" placeholder="Enter time">
+              </div>
+              <div class="form-row">
+                <label>User:</label>
+                <input type="text" placeholder="Enter user">
+              </div>
+              <div class="form-row checkbox-row">
+                <input type="checkbox">
+                <label>Salesman</label>
+              </div>
+              <div class="form-row">
+                <label>Service No:</label>
+                <input type="text" placeholder="Enter service number">
+              </div>
+            </div>
+        
+        </div>
+    <div class="form-section2">
+     <div class="form-section2-inner">
+        <div class="ver-row">
+          <label>Unit:</label>
+          <input type="text">
+        </div>
+        <div class="ver-row">
+          <label>Qty:</label>
+          <input type="text">
+        </div>
+        <div class="ver-row">
+          <label>R.Qty:</label>
+          <input type="text">
+        </div>
+        <div class="ver-row">
+          <label>R.Amnt:</label>
+          <input type="text">
+        </div>
+    </div>
+        <p class="centered-text">BILLING</p>
+    <div class="form-section2-innerbutton">
+        <div class="ver-row"><button>New</button></div>
+        <div class="ver-row"><a href="cus_search" class="button-link">Search</a></div>
+        <div class="ver-row"><button>Save</button></div>
+        <div class="ver-row"><button>Print</button></div>
+        <div class="ver-row"><button>Card</button></div>
+        <div class="ver-row"><button>Hold</button></div>
+        <div class="ver-row"><button>Redemption</button></div>
+        <div class="ver-row"><button>Reserve</button></div>
+        <div class="ver-row"><button>Customer</button></div>
+        <div class="ver-row"><button>All Customers</button></div>
+        <div class="ver-row"><button>Item Lists</button></div>
+        <div class="ver-row"><button>Bill Details</button></div>
+      </div>
+    </div>
+    <div class="radio-buttons">
+        <label><input type="radio" name="option" value="1"> Retail Price</label>
+        <label><input type="radio" name="option" value="2"> Wholesale Price</label>
+        <label><input type="radio" name="option" value="3"> A Class Price</label>
+        <label><input type="radio" name="option" value="4"> FOC</label>
+        <label><input type="radio" name="option" value="5"> Branch</label>
+        <div class="ptag">DELIVERY CLOSING TIME</div>
+      </div>
+      <div class="text">
+        <div class="text1">
+          <label>Store1</label>
+          <input type="text">
+        </div>
+      
+        <div class="form-container">
+          <div class="formsec">
+            <div class="form-pair">
+              <label>Store2</label>
+              <input type="text">
+            </div>
+          </div>
+      
+          <div class="formsec">
+            <div class="form-pair">
+              <label>Store3</label>
+              <input type="text">
+            </div>
+          </div>
+      
+          <div class="formsec">
+            <div class="form-pair">
+              <label>Store4</label>
+              <input type="text">
+            </div>
+          </div>
+      
+          <div class="formsec">
+            <div class="form-pair">
+              <label>Store5</label>
+              <input type="text">
+            </div>
+          </div>
+      
+          <div class="formsec">
+            <div class="button-pair">
+              <button>P.Switch</button>
+              <button>Load</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-design">
+        <table >
+          <thead>
+            <tr class="table-header">
+                <th style="width: 10%;">Item Code</th>
+                <th style="width: 25%;">Item Description</th>
+                <th style="width: 8%;">Uom</th>
+                <th style="width: 8%;">Old</th>
+                <th style="width: 10%;">Rate</th>
+                <th style="width: 8%;">Qnty</th>
+                <th style="width: 10%;">Store</th>
+                <th style="width: 10%;">AM Dist%</th>
+                <th style="width: 11%;">Amount</th>
+              </tr>
+          </thead>
+          <tbody>
+            <tr class="highlighted-row">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="yellow-bg" style="background-color: yellow;"></td>
+                <td class="green-bg" style="background-color: green;"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="blue-bg" style="background-color: blue;"></td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+      <div class="scroll-area">
+        <div class="row">
+            
+                    <p style="width: 10%;">sl.no</p>
+                    <p style="width: 25%;">ItemCode </p>
+                    <p style="width: 8%;">Item Name</p>
+                    <p style="width: 8%;">Unit</p>
+                    <p style="width: 10%;">OldRate</p>
+                    <p style="width: 8%;">Qnty</p>
+                    <p style="width: 10%;">Store</p>
+                    <p style="width: 10%;">AM Dist%</p>
+                    <p style="width: 11%;">Amount</p>
+                    
+        </div>
+        
+
+      </div>
+      <div class="main-row">
+        <div class="vertical">
+          <div class="verti">
+            <label>Amount</label>
+            <input type="text">
+          </div>
+          <div class="verti">
+            <label>Balance</label>
+            <input type="text">
+          </div>
+        </div>
+      
+        <div class="vertics">
+          <div class="verti">
+            <label>Discount Amt</label>
+            <input type="text">
+          </div>
+          <div class="verti">
+            <label>Discount %</label>
+            <input type="text">
+          </div>
+          <div class="verti">
+            <label>Discount</label>
+            <input type="text">
+          </div>
+          <div class="verti">
+            <label>No.of Items</label>
+            <input type="text">
+          </div>
+          <div class="verti">
+            <label>Net Total</label>
+            <input type="text">
+          </div>
+          <div class="verti">
+            <label>Grand Total</label>
+            <input type="text">
+          </div>
+        </div>
+      </div>
+      <div class="emptyrow">.</div>
+      <div class="finalrow">
+        <div class="checkbox">
+          <div class="check">
+          <input type="checkbox" id="check1"><label for="check1">Auto Price</label>
+          <input type="checkbox" id="check1"><label for="check1">Details</label>
+          <input type="checkbox" id="check1"><label for="check1">Items Added</label>
+          <input type="checkbox" id="check1"><label for="check1">Old Price</label>
+        </div>
+        <div class="form-group">
+          <label for="input1">Total Points</label>
+          <input type="text" id="input1" readonly value="0">
+        </div>
+        <div class="form-group">
+          <label for="input2">Privilege Points</label>
+          <input type="text" id="input2" readonly value="0">
+        </div>
+      </div>
+      
+      
+    </div>
+    
+      
+   </div>
+
+   </body>
+   </html>
+ 

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer List</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='billing.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            font-size: 14px;
+        }
+        button {
+            padding: 8px 12px;
+            font-size: 14px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tbody tr:hover {
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .pagination button {
+            margin: 0 5px;
+        }
+        .pagination span {
+            font-size: 14px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Customer List</h1>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search by name, code, phone, etc..." value="{{ search_query | e }}">
+        <button onclick="searchTable()">Search</button>
+    </div>
+
+    <table id="customersTable">
+        <thead>
+            <tr>
+                <th>LOCATIONCODE</th>
+                <th>CUST_CODE</th>
+                <th>CUST_NAME</th>
+                <th>ADDRESS</th>
+                <th>CREDIT_LIMIT</th>
+                <th>CREDIT_AMOUNT</th>
+                <th>CATEGORY</th>
+                <th>CATEGORYNAME</th>
+                <th>ROUTE</th>
+                <th>ROUTENAME</th>
+                <th>SALESMAN</th>
+                <th>SALESMANNAME</th>
+                <th>TYPE</th>
+                <th>MOBILE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in value %}
+            <tr data-custcode="{{ customer[1] }}">
+                <td>{{ customer[0] }}</td>
+                <td>{{ customer[1] }}</td>
+                <td>{{ customer[2] }}</td>
+                <td>{{ customer[3] }}</td>
+                <td>{{ customer[4] }}</td>
+                <td>{{ customer[5] }}</td>
+                <td>{{ customer[6] }}</td>
+                <td>{{ customer[7] }}</td>
+                <td>{{ customer[8] }}</td>
+                <td>{{ customer[9] }}</td>
+                <td>{{ customer[10] }}</td>
+                <td>{{ customer[11] }}</td>
+                <td>{{ customer[12] }}</td>
+                <td>{{ customer[13] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        {% if current_page > 1 %}
+            <button onclick="navigatePage({{ current_page - 1 }})">Previous</button>
+        {% else %}
+            <button disabled>Previous</button>
+        {% endif %}
+        <span>Page {{ current_page }} of {{ total_pages }}</span>
+        {% if current_page < total_pages %}
+            <button onclick="navigatePage({{ current_page + 1 }})">Next</button>
+        {% else %}
+            <button disabled>Next</button>
+        {% endif %}
+    </div>
+
+    <script>
+        function searchTable() {
+            const input = document.getElementById("searchInput").value.trim();
+            window.location.href = `?search=${encodeURIComponent(input)}&page=1`;
+        }
+
+        document.getElementById("searchInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                searchTable();
+            }
+        });
+
+        function navigatePage(page) {
+            const query = document.getElementById("searchInput").value.trim();
+            const url = query ? `?page=${page}&search=${encodeURIComponent(query)}` : `?page=${page}`;
+            window.location.href = url;
+        }
+
+        // Make table rows clickable
+        document.addEventListener("DOMContentLoaded", function() {
+            const rows = document.querySelectorAll("#customersTable tbody tr");
+            rows.forEach(row => {
+                row.addEventListener("click", function() {
+                    const custCode = this.getAttribute("data-custcode");
+                    const query = document.getElementById("searchInput").value.trim();
+                    let url = `/?cust_code=${custCode}&page={{ current_page }}`;
+                    if (query) {
+                        url += `&search=${encodeURIComponent(query)}`;
+                    }
+                    window.location.href = url;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

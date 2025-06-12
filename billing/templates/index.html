@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Layout</title>
+    <link rel="stylesheet" href="./static/billing.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"/>
+    <!-- Add Bootstrap CSS -->
+      <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+      />
+              <!-- Select2 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+        <!-- jQuery (required for Select2) -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- Select2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+  </head>
+  <body>
+    <div class="whole-container">
+      <div class="main-container">
+        <div class="form-section">
+          <div class="form-row">
+            <label>Customer Name:</label>
+            <input type="text" placeholder="Enter customer name" id="customerName"/>
+          </div>
+          <div class="form-row">
+            <label for="salesmanName">Salesman Name:</label>
+            <select id="salesmanName" name="salesmanName">
+              <option value="">Select salesman</option>
+              {% for name in salesmen %}
+                <option value="{{ name }}">{{ name }}</option>
+              {% endfor %}
+            </select>
+
+          </div>
+          <div class="form-row">
+            <label>Type of Invoice:</label>
+            <input type="text" placeholder="Invoice type" id="invoice" />
+            <label class="small-label">Session:</label>
+            <input type="text" class="small-input" placeholder="Session" />
+          </div>
+          <div class="form-row">
+            <label>Address:</label>
+            <input type="text" placeholder="Enter address" id="address" />
+            <label class="small-label">Online:</label>
+            <input type="text" class="small-input" placeholder="Online" />
+          </div>
+          <div class="form-row">
+            <label>Remark:</label>
+            <input type="text" placeholder="Enter remark" />
+          </div>
+          <div class="form-row">
+            <label>Quotation No:</label>
+            <input type="text" placeholder="Enter quotation number" />
+          </div>
+        </div>
+
+        <!-- Middle Form Section -->
+        <div class="form-section1">
+          <div class="form-row">
+            <label>Invoice number:</label>
+            <input type="text" placeholder="Enter invoice number" />
+          </div>
+          <div class="form-row">
+            <label>Invoice Date:</label>
+            <input type="date" />
+          </div>
+          <div class="form-row">
+            <label>Time:</label>
+            <input type="text" placeholder="Enter time" />
+          </div>
+          <div class="form-row">
+            <label>User:</label>
+            <input type="text" placeholder="Enter user" />
+          </div>
+         
+          <div class="form-row">
+            <label>Service No:</label>
+            <input type="text" placeholder="Enter service number" />
+          </div>
+        </div>
+        
+        <div class="form-section3">
+  
+   <div class="form-group">
+    <label for="priceOption">Price Type</label>
+    <select id="priceOption" class="form-select">
+      <option value="1">Retail Price</option>
+      <option value="2">Wholesale Price</option>
+      <option value="3">A Class Price</option>
+      <option value="4">FOC</option>
+      <option value="5">Branch</option>
+    </select>
+  </div>
+     <div class="formsec">
+          <div class="button-pair">
+            <button class="button-pair1">P.Switch</button>
+            <button class="button-pair1">Load</button>
+          </div>
+        </div>
+        <div class="marquee-wrapper">
+  <div class="marquee-text">DELIVERY CLOSING TIME:  </div>
+</div>
+
+  </div>
+</div>
+
+      
+      <div class="table-design">
+        <table>
+          <thead>
+            <tr class="table-header">
+              <th style="width: 10%">Item Code</th>
+              <th style="width: 25%">Item Description</th>
+              <th style="width: 8%">Uom</th>
+              <th style="width: 8%">Old</th>
+              <th style="width: 10%">Rate</th>
+              <th style="width: 8%">Qnty</th>
+              <th style="width: 10%">Store</th>
+              <th style="width: 10%">AM Dist%</th>
+              <th style="width: 11%">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlighted-row">
+              <td><a href="itempage" target="_blank"><input type="text" /></a></td>
+              <td><input type="text" /></td>
+              <td><input type="text" /></td>
+              <td class="yellow-bg" style="background-color: yellow">
+                <input type="text" />
+              </td>
+              <td class="green-bg" style="background-color: green">
+                <input type="text" />
+              </td>
+              <td><input type="text" /></td>
+              <td><input type="text" /></td>
+              <td><input type="text" /></td>
+              <td class="blue-bg" style="background-color: blue">
+                <input type="text" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="scroll-area">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 10%">sl.no</th>
+              <th style="width: 25%">Supplier Name</th>
+              <th style="width: 8%">Item Name</th>
+              <th style="width: 8%">Unit</th>
+              <th style="width: 10%">OldRate</th>
+              <th style="width: 8%">Qnty</th>
+              <th style="width: 10%">Store</th>
+              <th style="width: 10%">AM Dist%</th>
+              <th style="width: 11%">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            <!-- More rows go here -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="main-row">
+        <div class="iconsDiv">
+          <button><i class="fa-solid fa-plus"></i><br />New</button>
+          <button>
+            <i class="fa-solid fa-magnifying-glass"></i><br />Search
+          </button>
+          <button><i class="fa-solid fa-floppy-disk"></i><br />Save</button>
+          <button><i class="fa-solid fa-print"></i><br />Print</button>
+          <button><i class="fa-solid fa-id-card"></i><br />Card</button>
+          <button><i class="fa-solid fa-pause-circle"></i><br />Hold</button>
+          <button><i class="fa-solid fa-gift"></i><br />Redemption</button>
+          <button>
+            <i class="fa-solid fa-calendar-check"></i><br />Reserve
+          </button>
+          <button><i class="fa-solid fa-user"></i><br />Customer</button>
+          <button><i class="fa-solid fa-users"></i><br /> Customers</button>
+          <button><i class="fa-solid fa-list"></i><br />Item Lists</button>
+          <button>
+            <i class="fa-solid fa-file-invoice"></i><br />Bill Details
+          </button>
+          <button><i class="fa-solid fa-right-left"></i><br />P.Switch</button>
+          <button>
+            <i class="fa-solid fa-arrow-rotate-right"></i><br />Load
+          </button>
+        </div>
+        <div class="vertical">
+          <div class="checkbox">
+            <div class="check">
+              <ul type="none">
+                <li>
+                  <input type="checkbox" class="c1" /><label for="check1"
+                    >Auto Price</label
+                  >
+                </li>
+                <li>
+                  <input type="checkbox" class="c1" /><label for="check1"
+                    >Details</label
+                  >
+                </li>
+                <li>
+                  <input type="checkbox" class="c1" /><label for="check1"
+                    >Items Added</label
+                  >
+                </li>
+                <li>
+                  <input type="checkbox" class="c1" /><label for="check1"
+                    >Old Price</label
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <div class="form-group">
+              <div>
+                <label for="input1">Total Points</label>  :000
+                <!-- <input type="text" id="input1" readonly value="0"> -->
+                <!-- <p style="text-align: end;"></p> -->
+              </div>
+              <div>
+                <label for="input2">Privilege Points</label>  :000
+                <!-- <input type="text" id="input2" readonly value="0"> -->
+                <!-- <p style="text-align: end;"></p> -->
+              </div>
+            </div>
+          </div>
+          <table>
+            <tr>
+              <td><label>Amount:</label></td>
+              <td>00</td>
+            </tr>
+
+            <tr>
+              <td><label>Discount %:</label></td>
+              <td>00</td>
+            </tr>
+            <tr>
+              <td><label>Discount:</label></td>
+              <td>00</td>
+            </tr>
+            <tr>
+              <td><label>No Of products:</label></td>
+              <td>00</td>
+            </tr>
+            <tr>
+              <td><label>Amount:</label></td>
+              <td>00</td>
+            </tr>
+            <tr>
+              <td><label>Amount:</label></td>
+              <td>00</td>
+            </tr>
+          </table>
+
+          
+        </div>
+      </div>
+      
+    </div>
+    <!-- Bootstrap Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="customerModalLabel">Select Customer</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+        <p>Here you can search or select a customer.</p>
+<input type="text" id="customerSearch" class="form-control mb-2" placeholder="Search customer name or code...">
+
+        <!-- Responsive Table Wrapper -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover" id="customerTable">
+            <thead class="table-light">
+              <tr>
+                             
+                <th>CUST_CODE</th>
+                <th>CUST_NAME</th>
+                <th>ADDRESS</th>
+                <th>CREDIT_LIMIT</th>
+                <th>CREDIT_AMOUNT</th>
+                <th>SALESMAN</th>
+                <th>TYPE</th>
+                <th>MOBILE</th>
+            </tr>
+      </thead>
+      <tbody id="customerTableBody">
+        
+        <!-- Add more rows as needed -->
+      </tbody>
+    </table>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+    <!-- Add Bootstrap Bundle JS (with Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const customerInput = document.getElementById('customerName');
+  const customerModal = new bootstrap.Modal(document.getElementById('customerModal'));
+  const tableBody = document.getElementById('customerTableBody');
+  const searchInput = document.getElementById('customerSearch');
+
+  let allCustomers = [];
+
+  // Open modal and fetch customers
+  customerInput.addEventListener('click', function () {
+    customerModal.show();
+
+    if (allCustomers.length === 0) {
+      fetch('customers')
+        .then(response => response.json())
+        .then(customers => {
+          allCustomers = customers;
+          renderCustomerTable(allCustomers);
+        })
+        .catch(err => {
+          console.error('Error fetching customers:', err);
+          tableBody.innerHTML = '<tr><td colspan="8">Error loading data.</td></tr>';
+        });
+    } else {
+      renderCustomerTable(allCustomers); // use cached data
+    }
+  });
+
+  // Live search inside modal input
+  searchInput.addEventListener('input', function () {
+    const searchTerm = this.value.toLowerCase();
+    const filtered = allCustomers.filter(customer =>
+      customer.CUST_NAME.toLowerCase().includes(searchTerm) ||
+      customer.CUST_CODE.toLowerCase().includes(searchTerm)
+    );
+    renderCustomerTable(filtered);
+  });
+
+  // Function to render customer rows
+ function renderCustomerTable(customers) {
+   tableBody.innerHTML = '';
+
+   if (!Array.isArray(customers) || customers.length === 0) {
+     tableBody.innerHTML = '<tr><td colspan="8">No customers found.</td></tr>';
+     return;
+   }
+
+   customers.forEach(customer => {
+     const row = document.createElement('tr');
+     row.innerHTML = `
+        <td>${customer.CUST_CODE}</td>
+        <td>${customer.CUST_NAME}</td>
+        <td>${customer.ADDRESS}</td>
+        <td>${customer.CREDIT_LIMIT}</td>
+        <td>${customer.CREDIT_AMOUNT}</td>
+        <td>${customer.SALESMANNAME}</td>
+        <td>${customer.TYPE}</td>
+        <td>${customer.MOBILE}</td>
+      `;
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', () => {
+        document.getElementById('customerName').value = customer.CUST_NAME;
+        $('#salesmanName').val(customer.SALESMANNAME).trigger('change');
+        document.getElementById('invoice').value = customer.TYPE;
+        document.getElementById('address').value = customer.ADDRESS;
+        customerModal.hide();
+      });
+      tableBody.appendChild(row);
+    });
+  }
+});
+
+
+  $(document).ready(function() {
+    $('#salesmanName').select2({
+      placeholder: "Select or search a salesman",
+      allowClear: true
+    });
+
+    // Optional: handle Enter key for selection
+    $('#salesmanName').on('select2:select', function (e) {
+      const selected = e.params.data.text;
+      console.log("Selected salesman:", selected);
+    });
+  });
+ 
+  // Function to render customer rows
+function renderCustomerTable(customers) {
+    tableBody.innerHTML = '';
+
+    if (!Array.isArray(customers) || customers.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="8">No customers found.</td></tr>';
+        return;
+    }
+
+    customers.forEach(customer => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${customer.CUST_CODE}</td>
+            <td>${customer.CUST_NAME}</td>
+            <td>${customer.ADDRESS}</td>
+            <td>${customer.CREDIT_LIMIT}</td>
+            <td>${customer.CREDIT_AMOUNT}</td>
+            <td>${customer.SALESMANNAME}</td>
+            <td>${customer.TYPE}</td>
+            <td>${customer.MOBILE}</td>
+        `;
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', () => {
+            // Update the fields on the index page
+            document.getElementById('customerName').value = customer.CUST_NAME; // Set customer name
+            $('#salesmanName').val(customer.SALESMANNAME).trigger('change'); // Set salesman name
+            document.getElementById('invoice').value = customer.TYPE; // Set invoice type
+            document.getElementById('address').value = customer.ADDRESS; // Set address
+
+            // Close the modal
+            customerModal.hide();
+        });
+        tableBody.appendChild(row);
+    });
+}
+
+
+$("#customerSearch").on("input", function () {
+    const searchValue = $(this).val();
+    fetchCustomers(searchValue);
+});
+
+function fetchCustomers(searchTerm) {
+    $.ajax({
+        url: "/customers",
+        method: "GET",
+        data: { search: searchTerm },
+        success: function (data) {
+            let tableBody = $("#customerTableBody");
+            tableBody.empty();
+
+            if (data.length === 0) {
+                tableBody.append("<tr><td colspan='8'>No results found</td></tr>");
+                return;
+            }
+
+            data.forEach(function (customer) {
+                let row = $(`
+                    <tr style="cursor:pointer">
+                        <td>${customer.CUST_CODE}</td>
+                        <td>${customer.CUST_NAME}</td>
+                        <td>${customer.ADDRESS}</td>
+                        <td>${customer.CREDIT_LIMIT}</td>
+                        <td>${customer.CREDIT_AMOUNT}</td>
+                        <td>${customer.SALESMANNAME}</td>
+                        <td>${customer.TYPE}</td>
+                        <td>${customer.MOBILE}</td>
+                    </tr>
+                `);
+
+                row.on("click", function () {
+                    $("#customerName").val(customer.CUST_NAME);
+                    $("#salesmanName").val(customer.SALESMANNAME).trigger('change');
+                    $("#invoice").val(customer.TYPE);
+                    $("#address").val(customer.ADDRESS);
+                    bootstrap.Modal.getInstance(document.getElementById('customerModal')).hide();
+                });
+
+                tableBody.append(row);
+            });
+        },
+        error: function (xhr, status, error) {
+            console.error("Error:", error);
+        }
+    });
+}
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const rowData = JSON.parse(localStorage.getItem("selectedRow"));
+
+    if (rowData) {
+      const indexTable = document.getElementById("customerTableBody");
+
+      const newRow = document.createElement("tr");
+      newRow.innerHTML = `
+        <td>${rowData.index}</td>
+        <td>${rowData.customer}</td>
+        <td>${rowData.itemName}</td>
+        <td>${rowData.status}</td>
+        <td>${rowData.service}</td>
+        <td>${rowData.stock}</td>
+        <td>${rowData.qty}</td>
+        <td>${rowData.brand}</td>
+      `;
+
+      indexTable.appendChild(newRow);
+
+      // Clear localStorage if needed
+      localStorage.removeItem("selectedRow");
+    }
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+  const selectedItem = sessionStorage.getItem("selectedItem");
+  if (selectedItem) {
+    const item = JSON.parse(selectedItem);
+
+    const tableBody = document.querySelector(".scroll-area table tbody");
+    const newRow = document.createElement("tr");
+
+    newRow.innerHTML = `
+      <td>1</td>
+      <td>${item.itemCode}</td>
+      <td>${item.itemName}</td>
+      <td>${item.unit}</td>
+      <td>${item.oldRate}</td>
+      <td>${item.qty}</td>
+      <td>${item.store}</td>
+      <td>${item.discount}</td>
+      <td>${item.amount}</td>
+    `;
+
+    tableBody.appendChild(newRow);
+
+    // Clear it so the same row doesn't get added again on refresh
+    sessionStorage.removeItem("selectedItem");
+  }
+});
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  const data = sessionStorage.getItem("selectedItems");
+  if (data) {
+    const items = JSON.parse(data);
+    const tbody = document.querySelector(".scroll-area table tbody");
+
+    items.forEach((item, idx) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${idx + 1}</td>
+        <td>${item.itemCode}</td>
+        <td>${item.itemName}</td>
+        <td>${item.unit}</td>
+        <td>${item.oldRate}</td>
+        <td>${item.qty}</td>
+        <td>${item.store}</td>
+        <td>${item.discount}</td>
+        <td>${item.amount}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    sessionStorage.removeItem("selectedItems");
+  }
+});
+// const selectedItems = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
+// const itemFilters = {
+//   itemcode: sessionStorage.getItem("itemcode") || "",
+//   customer: sessionStorage.getItem("customer") || "",
+//   itemName: sessionStorage.getItem("itemName") || "",
+//   category: sessionStorage.getItem("category") || ""
+// };
+const items = sessionStorage.getItem("selectedItems");
+if (items) {
+  const selectedArray = JSON.parse(items);
+  console.log("Multi-selected rows:", selectedArray);
+} else {
+  const singleItem = sessionStorage.getItem("selectedItem");
+  if (singleItem) {
+    console.log("Single row selected:", JSON.parse(singleItem));
+  }
+}
+
+
+
+
+</script>
+
+
+
+  </body>
+</html>

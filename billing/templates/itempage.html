@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventory Entry Page</title>
+  <link rel="stylesheet" href="./static/itempage.css"/>
+  <style>
+    .selected {
+      background-color: #f0f8ff !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Top Section -->
+  <div class="top">
+    <div class="top1">
+      <div class="topserch">
+        <input type="text" class="inputtop" placeholder="ItemCode" id="itemcode" />
+        <input type="text" class="inputtop" placeholder="Customer" id="customer" />
+      </div>
+      <input type="text" class="inputtop" placeholder="Item Name" id="itemName" />
+    </div>
+    <div class="top1">
+      <select class="inputtop1" id="category">
+        <option value="">All Categories</option>
+        {% for row in value %}
+          <option value="{{ row[0] }}">{{ row[0] }}</option>
+        {% endfor %}
+      </select>
+      <button class="input" id="itemSelectBtn">Item Select</button>
+      <button class="input" id="loadBtn">Load</button>
+    </div>
+  </div>
+
+  <!-- Filter Buttons -->
+  <div class="filter-buttons">
+    <button class="btn-secondary">Send Food Cost Category</button>
+    <button class="btn-secondary">Customer Category</button>
+    <button class="btn-secondary">Show Promotions</button>
+    <button class="btn-secondary">Discount and Delivery</button>
+    <button class="btn-secondary">Send Food Cost Category</button>
+    <button class="btn-secondary">Customer Category</button>
+    <button class="btn-secondary">Show Promotions</button>
+    <button class="btn-secondary">Discount and Delivery</button>
+    <button class="btn-secondary">Send Food Cost Category</button>
+    <button class="btn-secondary">Customer Category</button>
+    <button class="btn-secondary">Show Promotions</button>
+    <button class="btn-secondary">Discount and Delivery</button>
+    <button class="btn-secondary">Send Food Cost Category</button>
+    <button class="btn-secondary">Customer Category</button>
+  </div>
+
+  <!-- Table Section -->
+  <div class="tableDiv">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Customer</th>
+          <th>Item Name</th>
+          <th>Status</th>
+          <th>Service</th>
+          <th>Stock</th>
+          <th>Qty</th>
+          <th>Brand</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Dynamic rows will be injected here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div>Selected Items: 1</div>
+    <div>Total Qty: 20</div>
+    <div>Invoice No: #123456</div>
+  </div>
+</div>
+
+<script>
+  let multiSelectMode = false;
+  let selectedRows = [];
+
+  function fetchAndUpdateTable() {
+    const itemCode = document.getElementById("itemcode").value.trim();
+    const customer = document.getElementById("customer").value.trim();
+    const itemName = document.getElementById("itemName").value.trim();
+    const category = document.getElementById("category").value;
+
+    fetch(`/search_items?itemcode=${itemCode}&customer=${customer}&itemname=${itemName}&category=${category}`)
+      .then((response) => response.json())
+      .then((data) => {
+        const tbody = document.querySelector("tbody");
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8">No results found</td></tr>`;
+          return;
+        }
+
+        data.forEach((item, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${item.suppliername || ""}</td>
+            <td>${item.itemname || ""}</td>
+            <td>${item.status || "ON"}</td>
+            <td>${item.service || "IN"}</td>
+            <td>${item.currentstock || 0}</td>
+            <td>${item.factor || 1}</td>
+            <td>${item.brand || ""}</td>
+          `;
+          document.querySelector("tbody").appendChild(row);
+        });
+      })
+      .catch((error) => {
+        console.error("Fetch error:", error);
+      });
+  }
+
+  function getStoredItems() {
+    const stored = sessionStorage.getItem("selectedItems");
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  // function saveStoredItems(items) {
+  //   sessionStorage.setItem("selectedItems", JSON.stringify(items));
+  // }
+
+  // function mergeSelectedItems(newItems) {
+  //   const existing = getStoredItems();
+  //   newItems.forEach(newItem => {
+  //     const exists = existing.some(
+  //       old => old.itemCode === newItem.itemCode && old.itemName === newItem.itemName
+  //     );
+  //     if (!exists) {
+  //       existing.push(newItem);
+  //     }
+  //   });
+  //   saveStoredItems(existing);
+  // }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    ["itemcode", "customer", "itemName", "category"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener(id === "category" ? "change" : "input", fetchAndUpdateTable);
+      }
+    });
+
+    const table = document.querySelector(".tableDiv table");
+    const itemSelectBtn = document.getElementById("itemSelectBtn");
+    const loadBtn = document.getElementById("loadBtn");
+
+    itemSelectBtn.addEventListener("click", () => {
+      multiSelectMode = true;
+      selectedRows = [];
+      document.querySelectorAll("tbody tr").forEach(row => row.classList.remove("selected"));
+      alert("Multi-select mode enabled. Click multiple rows to select. Press 'Load' to proceed.");
+    });
+
+    table.addEventListener("click", (e) => {
+  const row = e.target.closest("tr");
+  if (!row || row.querySelector("th")) return;
+
+  const cells = row.querySelectorAll("td");
+  const rowData = {
+    itemCode: cells[1]?.innerText || "",
+    itemName: cells[2]?.innerText || "",
+    unit: cells[3]?.innerText || "",
+    oldRate: cells[4]?.innerText || "",
+    qty: cells[5]?.innerText || "",
+    store: cells[6]?.innerText || "",
+    discount: cells[7]?.innerText || "",
+    amount: cells[8]?.innerText || ""
+  };
+
+  if (multiSelectMode) {
+    row.classList.toggle("selected");
+
+    const exists = selectedRows.some(r => r.itemCode === rowData.itemCode && r.itemName === rowData.itemName);
+    if (!exists) {
+      selectedRows.push(rowData);
+    } else {
+      selectedRows = selectedRows.filter(r => !(r.itemCode === rowData.itemCode && r.itemName === rowData.itemName));
+    }
+  } else {
+    // Single select mode: fetch existing and add this one
+    const existing = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
+
+    const exists = existing.some(r => r.itemCode === rowData.itemCode && r.itemName === rowData.itemName);
+    if (!exists) existing.push(rowData);
+
+    sessionStorage.setItem("selectedItems", JSON.stringify(existing));
+    window.location.href = "/";
+  }
+});
+
+loadBtn.addEventListener("click", () => {
+  if (!multiSelectMode) {
+    alert("Please click 'Item Select' first to enable multi-selection.");
+    return;
+  }
+
+  if (selectedRows.length === 0) {
+    alert("No rows selected.");
+    return;
+  }
+
+  // Merge new selectedRows with existing ones in sessionStorage
+  const existing = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
+
+  selectedRows.forEach(item => {
+    const exists = existing.some(r => r.itemCode === item.itemCode && r.itemName === item.itemName);
+    if (!exists) existing.push(item);
+  });
+
+  sessionStorage.setItem("selectedItems", JSON.stringify(existing));
+  multiSelectMode = false;
+  window.location.href = "/";
+});
+
+  });
+</script>
+
+</body>
+</html>
