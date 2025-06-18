@@ -9,10 +9,10 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'abc')  # Use environment variabl
 # Oracle connection pool
 dsn = cx_Oracle.makedsn("sayiq-rawabi.dyndns.org", 1521, service_name="rgc")
 pool = cx_Oracle.SessionPool(
-    user=os.getenv('DB_USER', 'rfsr'),
-    password=os.getenv('DB_PASSWORD', 'rfsr'),
+    user=os.getenv('DB_USER', 'rfim'),
+    password=os.getenv('DB_PASSWORD', 'rfim'),
     dsn=dsn,
-    min=1,
+    min=1, 
     max=10,
     increment=1,
     encoding="UTF-8"
@@ -165,19 +165,14 @@ def test_db():
             query = "SELECT column_name FROM all_tab_columns WHERE table_name = 'ITEMMASTERDETAILS'"
             cursor.execute(query)
 
-            # Fetch all rows
             rows = cursor.fetchall()
-
-            # Get column names from cursor description
             col_names = [desc[0] for desc in cursor.description]
-
-            # Convert rows to dictionaries
             results = [dict(zip(col_names, row)) for row in rows]
 
-            # Create HTML output
+            # Create HTML output with index
             html = "<h2>DB Test - Basic Item Info</h2><ul>"
-            for row in results:
-                html += "<li>" + "<br>".join(f"<b>{k}</b>: {v}" for k, v in row.items()) + "</li><br>"
+            for idx, row in enumerate(results, start=1):
+                html += f"<li><b>Index {idx}:</b><br>" + "<br>".join(f"<b>{k}</b>: {v}" for k, v in row.items()) + "</li><br>"
             html += "</ul>"
 
             return html
@@ -284,14 +279,14 @@ def search_items():
             SELECT 
                 ITEMCODE,
                 ITEMNAME,
-                COSTPRICE,
+                SUPPLIERNAME,
                 RETAILPRICE,
                 WHOLESALEPRICE,
+                UNIT,
                 CATEGORYNAME,
-                SUPPLIERNAME,
-                CURRENTSTOCK,
-                FACTOR,
-                BRANDNAME
+                BARCODE,
+                CURRENTSTOCK
+                
             FROM ITEMMASTERDETAILS
             WHERE 1=1
         """
@@ -310,9 +305,10 @@ def search_items():
             query += " AND LOWER(SUPPLIERNAME) LIKE :customer"
             params["customer"] = f"%{customer}%"
 
-        if category and category != "category":
+        if category:
             query += " AND LOWER(CATEGORYNAME) LIKE :category"
             params["category"] = f"%{category}%"
+
 
         # ✅ Oracle-compatible limit clause
         query += " AND ROWNUM <= 50"
@@ -321,7 +317,9 @@ def search_items():
             cursor.execute(query, params)
             columns = [col[0].lower() for col in cursor.description]
             rows = cursor.fetchall()
+            
             items = [dict(zip(columns, row)) for row in rows]
+            print(items)
         except Exception as e:
             print("Error executing query:", e)
             return jsonify({"error": "Query failed"}), 500

@@ -59,13 +59,14 @@
       <thead>
         <tr>
           <th>#</th>
-          <th>Customer</th>
-          <th>Item Name</th>
-          <th>Status</th>
-          <th>Service</th>
-          <th>Stock</th>
-          <th>Qty</th>
-          <th>Brand</th>
+          <th>ITEMCODE</th>
+          <th>ITEMNAME</th>
+          <th>SUPPLIERNAME</th>
+          <th>RETAILPRICE</th>
+          <th>WHOLESALEPRICE</th>
+          <th>CATEGORYNAME</th>
+          <th>BARCODE</th>
+          <th>CURRENT STOCK</th>
         </tr>
       </thead>
       <tbody>
@@ -106,15 +107,19 @@
         data.forEach((item, index) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${item.suppliername || ""}</td>
-            <td>${item.itemname || ""}</td>
-            <td>${item.status || "ON"}</td>
-            <td>${item.service || "IN"}</td>
-            <td>${item.currentstock || 0}</td>
-            <td>${item.factor || 1}</td>
-            <td>${item.brand || ""}</td>
-          `;
+          <td>${index + 1}</td>
+          <td>${item.itemcode || ""}</td>
+          <td>${item.itemname || ""}</td>
+          <td>${item.suppliername || ""}</td>
+          <td>${item.retailprice || ""}</td>
+          <td>${item.wholesaleprice || ""}</td>
+         
+          <td>${item.categoryname || ""}</td>
+          <td>${item.barcode || ""}</td>
+          <td>${item.currentstock || 0}</td>
+        `;
+
+
           document.querySelector("tbody").appendChild(row);
         });
       })
@@ -170,35 +175,42 @@
 
   const cells = row.querySelectorAll("td");
   const rowData = {
-    itemCode: cells[1]?.innerText || "",
-    itemName: cells[2]?.innerText || "",
-    unit: cells[3]?.innerText || "",
-    oldRate: cells[4]?.innerText || "",
-    qty: cells[5]?.innerText || "",
-    store: cells[6]?.innerText || "",
-    discount: cells[7]?.innerText || "",
-    amount: cells[8]?.innerText || ""
-  };
+  itemcode: cells[1]?.innerText || "",       // itemcode
+  itemname: cells[2]?.innerText || "",       // itemname
+  suppliername: cells[3]?.innerText || "",   // supplier
+  unit: "",                                   // not shown in table
+  qty:  "",            // currentstock
+  barcode: cells[7]?.innerText || "",
+  categoryname: cells[6]?.innerText || "",
+  discount: "",
+  amount: ""
+};
+
 
   if (multiSelectMode) {
     row.classList.toggle("selected");
 
-    const exists = selectedRows.some(r => r.itemCode === rowData.itemCode && r.itemName === rowData.itemName);
+    const exists = selectedRows.some(r => r.itemcode === rowData.itemcode && r.itemname === rowData.itemname);
+
+
     if (!exists) {
       selectedRows.push(rowData);
     } else {
-      selectedRows = selectedRows.filter(r => !(r.itemCode === rowData.itemCode && r.itemName === rowData.itemName));
+      selectedRows = selectedRows.filter(r => !(r.itemcode === rowData.itemcode && r.itemname === rowData.itemname));
+
     }
   } else {
-    // Single select mode: fetch existing and add this one
-    const existing = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
+  // Single select mode: fetch existing and add this one
+  const existing = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
 
-    const exists = existing.some(r => r.itemCode === rowData.itemCode && r.itemName === rowData.itemName);
-    if (!exists) existing.push(rowData);
+  const exists = existing.some(r => r.itemcode === rowData.itemcode && r.itemname === rowData.itemname);
 
-    sessionStorage.setItem("selectedItems", JSON.stringify(existing));
-    window.location.href = "/";
-  }
+  if (!exists) existing.push(rowData);
+
+  sessionStorage.setItem("selectedItems", JSON.stringify(existing));
+  window.location.replace("/");
+}
+
 });
 
 loadBtn.addEventListener("click", () => {
@@ -212,20 +224,24 @@ loadBtn.addEventListener("click", () => {
     return;
   }
 
-  // Merge new selectedRows with existing ones in sessionStorage
+  // ✅ Merge with existing sessionStorage
   const existing = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
 
   selectedRows.forEach(item => {
-    const exists = existing.some(r => r.itemCode === item.itemCode && r.itemName === item.itemName);
+    const exists = existing.some(
+      r => r.itemcode === item.itemcode && r.itemname === item.itemname
+    );
     if (!exists) existing.push(item);
   });
 
   sessionStorage.setItem("selectedItems", JSON.stringify(existing));
   multiSelectMode = false;
-  window.location.href = "/";
+  window.location.replace("/"); // ✅ Go back to index
 });
 
   });
+
+  
 </script>
 
 </body>

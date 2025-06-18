@@ -144,3 +144,82 @@ def update_salesman():
         return redirect(url_for("index", cust_code=cust_code))
     except cx_Oracle.DatabaseError as e:
         return f"Database error: {e}", 500
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const tbody = document.getElementById(".scroll-area table tbody");
+
+    // Step 1: Load selectedItems from sessionStorage
+    const selectedItems = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
+
+    // Step 2: Render table
+    if (selectedItems.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='6'>No items selected</td></tr>";
+    } else {
+      selectedItems.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.itemcode}</td>
+          <td>${item.itemname}</td>
+          <td>${item.suppliername}</td>
+          <td>${item.barcode}</td>
+          <td>${item.categoryname}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+   
+  });
+</script>
+
+</body>
+</html>\
+
+
+
+// Display selected items from sessionStorage in the table
+document.addEventListener("DOMContentLoaded", function () {
+  const selectedItems = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
+  const tbody = document.querySelector(".scroll-area table tbody");
+
+  if (selectedItems.length > 0) {
+    selectedItems.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.itemcode || ""}</td>
+        <td>${item.itemname || ""}</td>
+        <td>${item.suppliername || ""}</td>
+        <td>${item.unit || ""}</td>
+        <td>${item.qty || ""}</td>
+        <td>${item.barcode || ""}</td>
+        <td>${item.categoryname || ""}</td>
+        <td>${item.discount || ""}</td>
+        <td>${item.amount || ""}</td>
+      `;
+      
+      tbody.appendChild(row);
+    });
+  } else {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td colspan="9" style="text-align:center;">No items selected.</td>`;
+    tbody.appendChild(row);
+  }
+  });
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const tbody = document.getElementById(".scroll-area table tbody");

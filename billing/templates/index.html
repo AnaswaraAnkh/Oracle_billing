@@ -136,7 +136,7 @@
           </thead>
           <tbody>
             <tr class="highlighted-row">
-              <td><a href="itempage" target="_blank"><input type="text" /></a></td>
+              <td><a href="itempage" ><input type="text" /></a></td>
               <td><input type="text" /></td>
               <td><input type="text" /></td>
               <td class="yellow-bg" style="background-color: yellow">
@@ -159,20 +159,19 @@
         <table>
           <thead>
             <tr>
-              <th style="width: 10%">sl.no</th>
+              <th style="width: 8%">Item Code</th>
+              <th style="width: 25%">Item Name</th>
               <th style="width: 25%">Supplier Name</th>
-              <th style="width: 8%">Item Name</th>
               <th style="width: 8%">Unit</th>
-              <th style="width: 10%">OldRate</th>
-              <th style="width: 8%">Qnty</th>
-              <th style="width: 10%">Store</th>
+              <th style="width: 8%">Quantity</th>
+              <th style="width: 8%">Barcode</th>
+              <th style="width: 8%">Category</th>
               <th style="width: 10%">AM Dist%</th>
               <th style="width: 11%">Amount</th>
             </tr>
           </thead>
           <tbody>
-            
-            <!-- More rows go here -->
+            <!-- Selected items will be dynamically added here -->
           </tbody>
         </table>
       </div>
@@ -198,9 +197,10 @@
             <i class="fa-solid fa-file-invoice"></i><br />Bill Details
           </button>
           <button><i class="fa-solid fa-right-left"></i><br />P.Switch</button>
-          <button>
-            <i class="fa-solid fa-arrow-rotate-right"></i><br />Load
+          <button id="refreshButton">
+          <i class="fa-solid fa-arrow-rotate-right"></i><br />Refresh
           </button>
+
         </div>
         <div class="vertical">
           <div class="checkbox">
@@ -318,280 +318,162 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const customerInput = document.getElementById('customerName');
-  const customerModal = new bootstrap.Modal(document.getElementById('customerModal'));
-  const tableBody = document.getElementById('customerTableBody');
-  const searchInput = document.getElementById('customerSearch');
+    const customerInput = document.getElementById('customerName');
+    const customerModal = new bootstrap.Modal(document.getElementById('customerModal'));
+    const tableBody = document.getElementById('customerTableBody');
+    const searchInput = document.getElementById('customerSearch');
 
-  let allCustomers = [];
+    let allCustomers = [];
 
-  // Open modal and fetch customers
-  customerInput.addEventListener('click', function () {
-    customerModal.show();
-
-    if (allCustomers.length === 0) {
-      fetch('customers')
-        .then(response => response.json())
-        .then(customers => {
-          allCustomers = customers;
-          renderCustomerTable(allCustomers);
-        })
-        .catch(err => {
-          console.error('Error fetching customers:', err);
-          tableBody.innerHTML = '<tr><td colspan="8">Error loading data.</td></tr>';
-        });
-    } else {
-      renderCustomerTable(allCustomers); // use cached data
-    }
-  });
-
-  // Live search inside modal input
-  searchInput.addEventListener('input', function () {
-    const searchTerm = this.value.toLowerCase();
-    const filtered = allCustomers.filter(customer =>
-      customer.CUST_NAME.toLowerCase().includes(searchTerm) ||
-      customer.CUST_CODE.toLowerCase().includes(searchTerm)
-    );
-    renderCustomerTable(filtered);
-  });
-
-  // Function to render customer rows
- function renderCustomerTable(customers) {
-   tableBody.innerHTML = '';
-
-   if (!Array.isArray(customers) || customers.length === 0) {
-     tableBody.innerHTML = '<tr><td colspan="8">No customers found.</td></tr>';
-     return;
-   }
-
-   customers.forEach(customer => {
-     const row = document.createElement('tr');
-     row.innerHTML = `
-        <td>${customer.CUST_CODE}</td>
-        <td>${customer.CUST_NAME}</td>
-        <td>${customer.ADDRESS}</td>
-        <td>${customer.CREDIT_LIMIT}</td>
-        <td>${customer.CREDIT_AMOUNT}</td>
-        <td>${customer.SALESMANNAME}</td>
-        <td>${customer.TYPE}</td>
-        <td>${customer.MOBILE}</td>
-      `;
-      row.style.cursor = 'pointer';
-      row.addEventListener('click', () => {
-        document.getElementById('customerName').value = customer.CUST_NAME;
-        $('#salesmanName').val(customer.SALESMANNAME).trigger('change');
-        document.getElementById('invoice').value = customer.TYPE;
-        document.getElementById('address').value = customer.ADDRESS;
-        customerModal.hide();
-      });
-      tableBody.appendChild(row);
-    });
-  }
-});
-
-
-  $(document).ready(function() {
-    $('#salesmanName').select2({
-      placeholder: "Select or search a salesman",
-      allowClear: true
-    });
-
-    // Optional: handle Enter key for selection
-    $('#salesmanName').on('select2:select', function (e) {
-      const selected = e.params.data.text;
-      console.log("Selected salesman:", selected);
-    });
-  });
- 
-  // Function to render customer rows
-function renderCustomerTable(customers) {
-    tableBody.innerHTML = '';
-
-    if (!Array.isArray(customers) || customers.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8">No customers found.</td></tr>';
-        return;
+    // Retrieve selected customer data from sessionStorage
+    const selectedCustomer = JSON.parse(sessionStorage.getItem('selectedCustomer'));
+    if (selectedCustomer) {
+        document.getElementById('customerName').value = selectedCustomer.name;
+        $('#salesmanName').val(selectedCustomer.salesman).trigger('change');
+        document.getElementById('invoice').value = selectedCustomer.invoiceType;
+        document.getElementById('address').value = selectedCustomer.address;
     }
 
-    customers.forEach(customer => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${customer.CUST_CODE}</td>
-            <td>${customer.CUST_NAME}</td>
-            <td>${customer.ADDRESS}</td>
-            <td>${customer.CREDIT_LIMIT}</td>
-            <td>${customer.CREDIT_AMOUNT}</td>
-            <td>${customer.SALESMANNAME}</td>
-            <td>${customer.TYPE}</td>
-            <td>${customer.MOBILE}</td>
-        `;
-        row.style.cursor = 'pointer';
-        row.addEventListener('click', () => {
-            // Update the fields on the index page
-            document.getElementById('customerName').value = customer.CUST_NAME; // Set customer name
-            $('#salesmanName').val(customer.SALESMANNAME).trigger('change'); // Set salesman name
-            document.getElementById('invoice').value = customer.TYPE; // Set invoice type
-            document.getElementById('address').value = customer.ADDRESS; // Set address
+    // Open modal and fetch customers
+    customerInput.addEventListener('click', function () {
+        customerModal.show();
 
-            // Close the modal
-            customerModal.hide();
-        });
-        tableBody.appendChild(row);
-    });
-}
-
-
-$("#customerSearch").on("input", function () {
-    const searchValue = $(this).val();
-    fetchCustomers(searchValue);
-});
-
-function fetchCustomers(searchTerm) {
-    $.ajax({
-        url: "/customers",
-        method: "GET",
-        data: { search: searchTerm },
-        success: function (data) {
-            let tableBody = $("#customerTableBody");
-            tableBody.empty();
-
-            if (data.length === 0) {
-                tableBody.append("<tr><td colspan='8'>No results found</td></tr>");
-                return;
-            }
-
-            data.forEach(function (customer) {
-                let row = $(`
-                    <tr style="cursor:pointer">
-                        <td>${customer.CUST_CODE}</td>
-                        <td>${customer.CUST_NAME}</td>
-                        <td>${customer.ADDRESS}</td>
-                        <td>${customer.CREDIT_LIMIT}</td>
-                        <td>${customer.CREDIT_AMOUNT}</td>
-                        <td>${customer.SALESMANNAME}</td>
-                        <td>${customer.TYPE}</td>
-                        <td>${customer.MOBILE}</td>
-                    </tr>
-                `);
-
-                row.on("click", function () {
-                    $("#customerName").val(customer.CUST_NAME);
-                    $("#salesmanName").val(customer.SALESMANNAME).trigger('change');
-                    $("#invoice").val(customer.TYPE);
-                    $("#address").val(customer.ADDRESS);
-                    bootstrap.Modal.getInstance(document.getElementById('customerModal')).hide();
+        if (allCustomers.length === 0) {
+            fetch('customers')
+                .then(response => response.json())
+                .then(customers => {
+                    allCustomers = customers;
+                    renderCustomerTable(allCustomers);
+                })
+                .catch(err => {
+                    console.error('Error fetching customers:', err);
+                    tableBody.innerHTML = '<tr><td colspan="8">Error loading data.</td></tr>';
                 });
-
-                tableBody.append(row);
-            });
-        },
-        error: function (xhr, status, error) {
-            console.error("Error:", error);
+        } else {
+            renderCustomerTable(allCustomers); // use cached data
         }
     });
-}
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const rowData = JSON.parse(localStorage.getItem("selectedRow"));
-
-    if (rowData) {
-      const indexTable = document.getElementById("customerTableBody");
-
-      const newRow = document.createElement("tr");
-      newRow.innerHTML = `
-        <td>${rowData.index}</td>
-        <td>${rowData.customer}</td>
-        <td>${rowData.itemName}</td>
-        <td>${rowData.status}</td>
-        <td>${rowData.service}</td>
-        <td>${rowData.stock}</td>
-        <td>${rowData.qty}</td>
-        <td>${rowData.brand}</td>
-      `;
-
-      indexTable.appendChild(newRow);
-
-      // Clear localStorage if needed
-      localStorage.removeItem("selectedRow");
-    }
-  });
-  document.addEventListener("DOMContentLoaded", function () {
-  const selectedItem = sessionStorage.getItem("selectedItem");
-  if (selectedItem) {
-    const item = JSON.parse(selectedItem);
-
-    const tableBody = document.querySelector(".scroll-area table tbody");
-    const newRow = document.createElement("tr");
-
-    newRow.innerHTML = `
-      <td>1</td>
-      <td>${item.itemCode}</td>
-      <td>${item.itemName}</td>
-      <td>${item.unit}</td>
-      <td>${item.oldRate}</td>
-      <td>${item.qty}</td>
-      <td>${item.store}</td>
-      <td>${item.discount}</td>
-      <td>${item.amount}</td>
-    `;
-
-    tableBody.appendChild(newRow);
-
-    // Clear it so the same row doesn't get added again on refresh
-    sessionStorage.removeItem("selectedItem");
-  }
-});
-
-
-
-document.addEventListener("DOMContentLoaded", function () {
-  const data = sessionStorage.getItem("selectedItems");
-  if (data) {
-    const items = JSON.parse(data);
-    const tbody = document.querySelector(".scroll-area table tbody");
-
-    items.forEach((item, idx) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${idx + 1}</td>
-        <td>${item.itemCode}</td>
-        <td>${item.itemName}</td>
-        <td>${item.unit}</td>
-        <td>${item.oldRate}</td>
-        <td>${item.qty}</td>
-        <td>${item.store}</td>
-        <td>${item.discount}</td>
-        <td>${item.amount}</td>
-      `;
-      tbody.appendChild(row);
+    // Live search inside modal input
+    searchInput.addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+        const filtered = allCustomers.filter(customer =>
+            customer.CUST_NAME.toLowerCase().includes(searchTerm) ||
+            customer.CUST_CODE.toLowerCase().includes(searchTerm)
+        );
+        renderCustomerTable(filtered);
     });
 
-    sessionStorage.removeItem("selectedItems");
-  }
+    // Function to render customer rows
+    function renderCustomerTable(customers) {
+        tableBody.innerHTML = '';
+
+        if (!Array.isArray(customers) || customers.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8">No customers found.</td></tr>';
+            return;
+        }
+
+        customers.forEach(customer => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${customer.CUST_CODE}</td>
+                <td>${customer.CUST_NAME}</td>
+                <td>${customer.ADDRESS}</td>
+                <td>${customer.CREDIT_LIMIT}</td>
+                <td>${customer.CREDIT_AMOUNT}</td>
+                <td>${customer.SALESMANNAME}</td>
+                <td>${customer.TYPE}</td>
+                <td>${customer.MOBILE}</td>
+            `;
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', () => {
+                // Store selected customer data in sessionStorage
+                sessionStorage.setItem('selectedCustomer', JSON.stringify({
+                    name: customer.CUST_NAME,
+                    salesman: customer.SALESMANNAME,
+                    invoiceType: customer.TYPE,
+                    address: customer.ADDRESS
+                }));
+
+                // Populate the fields on the index page
+                document.getElementById('customerName').value = customer.CUST_NAME; // Set customer name
+                $('#salesmanName').val(customer.SALESMANNAME).trigger('change'); // Set salesman name
+                document.getElementById('invoice').value = customer.TYPE; // Set invoice type
+                document.getElementById('address').value = customer.ADDRESS; // Set address
+
+                // Close the modal
+                customerModal.hide();
+            });
+            tableBody.appendChild(row);
+        });
+    }
+
+    $(document).ready(function() {
+        $('#salesmanName').select2({
+            placeholder: "Select or search a salesman",
+            allowClear: true
+        });
+
+        // Optional: handle Enter key for selection
+        $('#salesmanName').on('select2:select', function (e) {
+            const selected = e.params.data.text;
+            console.log("Selected salesman:", selected);
+        });
+    });
+
+    // Function to render selected items from sessionStorage in the table
+    function renderTable() {
+        const tbody = document.querySelector(".scroll-area table tbody");
+        const selectedItemsRaw = sessionStorage.getItem("selectedItems");
+        const selectedItems = selectedItemsRaw ? JSON.parse(selectedItemsRaw) : []; // Read fresh from sessionStorage
+
+        tbody.innerHTML = ""; // Clear existing rows
+
+        if (selectedItems.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='9' style='text-align:center;'>No items selected</td></tr>";
+        } else {
+            selectedItems.forEach((item, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.itemcode || ""}</td>
+                    <td>${item.itemname || ""}</td>
+                    <td>${item.suppliername || ""}</td>
+                    <td>${item.unit || ""}</td>
+                    <td>${item.qty || ""}</td>
+                    <td>${item.barcode || ""}</td>
+                    <td>${item.categoryname || ""}</td>
+                    <td>${item.discount || ""}</td>
+                    <td>${item.amount || ""}</td>
+                `;
+                row.addEventListener("dblclick", function () {
+                    // Remove item from selectedItems
+                    selectedItems.splice(index, 1);
+                    // Update sessionStorage
+                    sessionStorage.setItem("selectedItems", JSON.stringify(selectedItems));
+                    // Re-render the table
+                    renderTable();
+                });
+                tbody.appendChild(row);
+            });
+        }
+    }
+
+    // Initial render for selected items
+    renderTable();
+
+    // Add event listener for the refresh button
+    document.getElementById("refreshButton").addEventListener("click", function () {
+        console.log("Refresh button clicked");
+        console.log("Before clearing, sessionStorage selectedItems:", sessionStorage.getItem("selectedItems"));
+        sessionStorage.removeItem("selectedItems");
+        console.log("After clearing, sessionStorage selectedItems:", sessionStorage.getItem("selectedItems"));
+        renderTable(); // Call renderTable to update the UI
+    });
 });
-// const selectedItems = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
-// const itemFilters = {
-//   itemcode: sessionStorage.getItem("itemcode") || "",
-//   customer: sessionStorage.getItem("customer") || "",
-//   itemName: sessionStorage.getItem("itemName") || "",
-//   category: sessionStorage.getItem("category") || ""
-// };
-const items = sessionStorage.getItem("selectedItems");
-if (items) {
-  const selectedArray = JSON.parse(items);
-  console.log("Multi-selected rows:", selectedArray);
-} else {
-  const singleItem = sessionStorage.getItem("selectedItem");
-  if (singleItem) {
-    console.log("Single row selected:", JSON.parse(singleItem));
-  }
-}
-
-
-
-
 </script>
 
 
 
   </body>
 </html>
+
