@@ -277,18 +277,20 @@ def search_items():
 
         query = """
             SELECT 
-                ITEMCODE,
-                ITEMNAME,
-                SUPPLIERNAME,
-                RETAILPRICE,
-                WHOLESALEPRICE,
-                UNIT,
-                CATEGORYNAME,
-                BARCODE,
-                CURRENTSTOCK
-                
-            FROM ITEMMASTERDETAILS
-            WHERE 1=1
+                i.ITEMCODE,
+                i.ITEMNAME,
+                i.RETAILPRICE,
+                i.UNIT,
+                i.CATEGORYNAME,
+                i.BARCODE,
+                i.LOCATIONCODE,
+                l.LOCATIONNAME
+            FROM 
+                ITEMMASTERDETAILS i
+            JOIN 
+                LOCATIONMASTER l
+            ON 
+                i.LOCATIONCODE = l.LOCATIONCODE WHERE 1=1 and TABLES='MASTER' and BaselocationFlag='Y'
         """
 
         params = {}
@@ -320,6 +322,9 @@ def search_items():
             
             items = [dict(zip(columns, row)) for row in rows]
             print(items)
+            print(items[0])
+            print(type(items[0]["retailprice"]))
+
         except Exception as e:
             print("Error executing query:", e)
             return jsonify({"error": "Query failed"}), 500

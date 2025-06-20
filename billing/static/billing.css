@@ -88,6 +88,10 @@ padding-top: 0PX;
   /* padding: 5px; */
   /* margin-bottom: 20px; */
 }
+   .selected {
+       background-color: #f0f8ff; /* Light blue background for selected rows */
+   }
+   
 
 
 .form-section3 {

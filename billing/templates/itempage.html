@@ -110,13 +110,13 @@
           <td>${index + 1}</td>
           <td>${item.itemcode || ""}</td>
           <td>${item.itemname || ""}</td>
-          <td>${item.suppliername || ""}</td>
-          <td>${item.retailprice || ""}</td>
-          <td>${item.wholesaleprice || ""}</td>
-         
-          <td>${item.categoryname || ""}</td>
           <td>${item.barcode || ""}</td>
-          <td>${item.currentstock || 0}</td>
+          <td>${item.locationname || ""}</td>
+          <td>${item.unit || ""}</td>
+          <td>${item.qty || ""}</td>
+          <td>${item.retailprice || ""}</td>
+          <td>${item.discount || ""}</td>
+          <td>${item.amount || ""}</td>
         `;
 
 
@@ -175,16 +175,18 @@
 
   const cells = row.querySelectorAll("td");
   const rowData = {
-  itemcode: cells[1]?.innerText || "",       // itemcode
-  itemname: cells[2]?.innerText || "",       // itemname
-  suppliername: cells[3]?.innerText || "",   // supplier
-  unit: "",                                   // not shown in table
-  qty:  "",            // currentstock
-  barcode: cells[7]?.innerText || "",
-  categoryname: cells[6]?.innerText || "",
-  discount: "",
-  amount: ""
+    itemcode: cells[1]?.innerText || "", // Assuming Item Code is in the first column
+    itemname: cells[2]?.innerText || "", // Assuming Item Name is in the second column
+    barcode: cells[3]?.innerText || "", // Assuming Barcode is in the third column
+    locationname: cells[4]?.innerText || "", // Assuming Store is in the fourth column
+    unit: cells[5]?.innerText || "", // Assuming Unit is in the fifth column
+    qty:   0, // Assuming Quantity is in the sixth column
+    retailprice: parseFloat(cells[7]?.innerText) || 0.0, // Assuming Rate is in the seventh column
+    discount: "", // You can set this based on your logic
+    amount:"" // Assuming Amount is in the ninth column
 };
+
+
 
 
   if (multiSelectMode) {
