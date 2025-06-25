@@ -349,6 +349,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  
+    // Load the selected customer from session storage
+    const selectedCustomer = sessionStorage.getItem("selectedCustomer");
+    if (selectedCustomer) {
+        const customer = JSON.parse(selectedCustomer);
+        console.log("Retrieved customer from session storage:", customer); // Log retrieved customer
+        customerInput.value = customer.CUST_NAME; // Set customer name
+        $('#salesmanName').val(customer.SALESMANNAME).trigger('change'); // Set salesman name
+        document.getElementById('invoice').value = customer.TYPE; // Set invoice type
+        document.getElementById('address').value = customer.ADDRESS; // Set address
+    }
   // Live search inside modal input
   searchInput.addEventListener('input', function () {
     const searchTerm = this.value.toLowerCase();
@@ -382,6 +393,8 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
       row.style.cursor = 'pointer';
       row.addEventListener('click', () => {
+        // Store the selected customer in session storage
+              sessionStorage.setItem("selectedCustomer", JSON.stringify(customer));
         document.getElementById('customerName').value = customer.CUST_NAME;
         $('#salesmanName').val(customer.SALESMANNAME).trigger('change');
         document.getElementById('invoice').value = customer.TYPE;
@@ -394,56 +407,9 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-  $(document).ready(function() {
-    $('#salesmanName').select2({
-      placeholder: "Select or search a salesman",
-      allowClear: true
-    });
-
-    // Optional: handle Enter key for selection
-    $('#salesmanName').on('select2:select', function (e) {
-      const selected = e.params.data.text;
-      console.log("Selected salesman:", selected);
-    });
-  });
  
-  // Function to render customer rows
-function renderCustomerTable(customers) {
-    tableBody.innerHTML = '';
-
-    if (!Array.isArray(customers) || customers.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8">No customers found.</td></tr>';
-        return;
-    }
-
-    customers.forEach(customer => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${customer.CUST_CODE}</td>
-            <td>${customer.CUST_NAME}</td>
-            <td>${customer.ADDRESS}</td>
-            <td>${customer.CREDIT_LIMIT}</td>
-            <td>${customer.CREDIT_AMOUNT}</td>
-            <td>${customer.SALESMANNAME}</td>
-            <td>${customer.TYPE}</td>
-            <td>${customer.MOBILE}</td>
-        `;
-        row.style.cursor = 'pointer';
-        row.addEventListener('click', () => {
-            // Update the fields on the index page
-            document.getElementById('customerName').value = customer.CUST_NAME; // Set customer name
-            $('#salesmanName').val(customer.SALESMANNAME).trigger('change'); // Set salesman name
-            document.getElementById('invoice').value = customer.TYPE; // Set invoice type
-            document.getElementById('address').value = customer.ADDRESS; // Set address
-
-            // Close the modal
-            customerModal.hide();
-        });
-        tableBody.appendChild(row);
-    });
-}
-
-
+ 
+ 
 $("#customerSearch").on("input", function () {
     const searchValue = $(this).val();
     fetchCustomers(searchValue);
@@ -494,37 +460,7 @@ function fetchCustomers(searchTerm) {
     });
 }
 
-// Display selected items from sessionStorage in the table
-document.addEventListener("DOMContentLoaded", function () {
-  const selectedItems = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
-  console.log(JSON.parse(sessionStorage.getItem("selectedItems")));
 
-  const tbody = document.querySelector(".scroll-area table tbody");
-
-  if (selectedItems.length > 0) {
-    selectedItems.forEach(item => {
-      const row = document.createElement("tr");
-            row.innerHTML = `
-        <td>${item.itemcode || ""}</td>
-        <td>${item.itemname || ""}</td>
-        <td>${item.barcode || ""}</td>
-        <td>${item.locationname || ""}</td>
-        <td>${item.unit || ""}</td>
-        <td>${item.qty || ""}</td>
-        <td>${item.retailprice || ""}</td>
-        <td>${item.discount || ""}</td>
-        <td>${item.amount || ""}</td>
-`;
-
-      
-      tbody.appendChild(row);
-    });
-  } else {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td style="text-align:center;">No items selected.</td>`;
-    tbody.appendChild(row);
-  }
-  });
 
  document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector(".scroll-area table tbody");
@@ -536,20 +472,117 @@ document.addEventListener("DOMContentLoaded", function () {
         if (selectedItems.length === 0) {
             tbody.innerHTML = "<tr><td colspan='9' style='text-align:center;'>No items selected</td></tr>";
         } else {
-            selectedItems.forEach((item, index) => {
+            selectedItems.forEach((item) => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${item.itemcode || ""}</td>
-                    <td>${item.itemname || ""}</td>
-                    <td>${item.barcode || ""}</td>
-                    <td>${item.locationname || ""}</td>
-                    <td>${item.unit || ""}</td>
-                    <td>${item.qty || ""}</td>
-                    <td>${item.retailprice || ""}</td>
-                    <td>${item.discount || ""}</td>
-                    <td>${item.amount || ""}</td>
+                    <td><input type="text" class="item-code" value="${item.itemcode || ""}" /></td>
+                    <td class="item-name">${item.itemname || ""}</td>
+                    <td class="barcode">${item.barcode || ""}</td>
+                    <td class="location">${item.locationname || ""}</td>
+                    <td class="unit">
+                        <select class="unit-select"></select>
+                    </td>
+                    <td class="quantity">${item.qty || ""}</td>
+                    <td class="rate">${item.retailprice || ""}</td>
+                    <td class="discount">${item.discount || ""}</td>
+                    <td class="amount">${item.amount || ""}</td>
                 `;
+                const itemCodeInput = row.querySelector('.item-code');
+                const unitSelect = row.querySelector('.unit-select');
 
+                // Fetch available units for the item during initial load
+                fetch(`/get_item_units?itemcode=${encodeURIComponent(item.itemcode)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Units not found');
+                        }
+                        return response.json();
+                    })
+                    .then(units => {
+                        console.log('Fetched units:', units); // Log the units to check the response
+                        // Clear existing options
+                        unitSelect.innerHTML = "";
+                        // Populate the select box with available units
+                        units.forEach(unit => {
+                            const option = document.createElement("option");
+                            option.value = unit; // Assuming unit is a string
+                            option.textContent = unit; // Display the unit
+                            unitSelect.appendChild(option);
+                        });
+
+                        // Set the selected unit if it exists
+                        if (item.unit) {
+                            unitSelect.value = item.unit; // Set the current unit
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching item units:', error);
+                    });
+
+                // Add event listener for item code input
+                itemCodeInput.addEventListener('change', function () {
+                    const newItemCode = this.value;
+
+                    // Fetch item details based on the new item code
+                    fetch(`/search_items?itemcode=${encodeURIComponent(newItemCode)}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Item not found');
+                            }
+                            return response.json();
+                        })
+                        .then(items => {
+                            if (items.length > 0) {
+                                const itemDetails = items[0]; // Assuming you want the first match
+                                // Update the row with the new item details
+                                row.querySelector('.item-name').innerText = itemDetails.itemname || ""; // Item Name
+                                row.querySelector('.barcode').innerText = itemDetails.barcode || ""; // Barcode
+                                row.querySelector('.location').innerText = itemDetails.locationname || ""; // Store
+                                row.querySelector('.quantity').innerText = itemDetails.qty || ""; // Quantity
+                                row.querySelector('.rate').innerText = itemDetails.retailprice || ""; // Rate
+                                row.querySelector('.discount').innerText = itemDetails.discount || ""; // AM Dist%
+                                row.querySelector('.amount').innerText = itemDetails.amount || ""; // Amount
+
+                                // Fetch available units for the new item
+                                fetch(`/get_item_units?itemcode=${encodeURIComponent(newItemCode)}`)
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error('Units not found');
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(units => {
+                                        // Clear existing options
+                                        unitSelect.innerHTML = "";
+                                        units.forEach(unit => {
+                                            const option = document.createElement("option");
+                                            option.value = unit; // Assuming unit is a string
+                                            option.textContent = unit; // Display the unit
+                                            unitSelect.appendChild(option);
+                                        });
+
+                                        // Set the selected unit if it exists
+                                        if (itemDetails.unit) {
+                                            unitSelect.value = itemDetails.unit; // Set the current unit
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error fetching item units:', error);
+                                    });
+                                    // Update the session storage with the new item
+                                selectedItems = selectedItems.map(i => 
+                                    i.itemcode === item.itemcode ? itemDetails : i
+                                );
+                                sessionStorage.setItem("selectedItems", JSON.stringify(selectedItems));
+                            } else {
+                                alert('No item found with that code.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching item details:', error);
+                            alert('Item not found. Please check the item code.');
+                        });
+                });
                 // Add click event to toggle selection
                 row.addEventListener("click", function() {
                     row.classList.toggle("selected"); // Toggle the selected class
@@ -572,7 +605,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.key === "Delete") {
             const rowsToDelete = Array.from(tbody.querySelectorAll("tr.selected"));
             rowsToDelete.forEach(row => {
-                const itemcode = row.cells[0].innerText; // Assuming itemcode is in the first column
+                const itemcode = row.cells[0].querySelector('.item-code').value; // Get item code from input
                 selectedItems = selectedItems.filter(item => item.itemcode !== itemcode); // Remove from selectedItems
                 row.remove(); // Remove the row from the table
             });
@@ -587,9 +620,15 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("refreshButton").addEventListener("click", function () {
         console.log("Refresh button clicked");
         console.log("Before clearing, sessionStorage selectedItems:", sessionStorage.getItem("selectedItems"));
+        console.log("Before clearing, sessionStorage selectedCustomer:", sessionStorage.getItem("selectedCustomer"));
         sessionStorage.removeItem("selectedItems");
+        sessionStorage.removeItem("selectedCustomer");
         selectedItems = []; // Clear the local selectedItems array
+        selectedCustomer=[];
         console.log("After clearing, sessionStorage selectedItems:", sessionStorage.getItem("selectedItems"));
+        console.log("After clearing, sessionStorage selectedItems:", sessionStorage.getItem("selectedCustomer"));
+
+
         renderTable(); // Call renderTable to update the UI
     });
 });

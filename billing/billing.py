@@ -1,11 +1,9 @@
-import cx_Oracle
-from flask import Flask, redirect, render_template, request, url_for
 import math
+import cx_Oracle
+from flask import Flask, redirect, render_template, request, url_for, jsonify
 import os
-
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'abc')  # Use environment variable for secret key
-
 # Oracle connection pool
 dsn = cx_Oracle.makedsn("sayiq-rawabi.dyndns.org", 1521, service_name="rgc")
 pool = cx_Oracle.SessionPool(
@@ -13,11 +11,10 @@ pool = cx_Oracle.SessionPool(
     password=os.getenv('DB_PASSWORD', 'rfim'),
     dsn=dsn,
     min=1, 
-    max=10,
+    max=20,
     increment=1,
     encoding="UTF-8"
 )
-
 # Configuration for pagination
 PER_PAGE = 50
 @app.route('/cus_search')
@@ -332,6 +329,105 @@ def search_items():
             cursor.close()
 
     return jsonify(items)
+
+
+
+@app.route("/api/purchased_items", methods=["GET"])
+def get_purchased_items():
+    customer_code = request.args.get("customer_code", "").strip()
+    connection = None
+    cursor = None
+    try:
+        if not customer_code:
+            return jsonify({"error": "Customer code is required."}), 400
+
+        connection = pool.acquire()
+        cursor = connection.cursor()
+        
+        # SQL query to fetch purchased items for the given customer code
+        query = """
+            SELECT DISTINCT 
+                im.itemcode,
+                im.itemname,
+                im.baseuom AS unit,
+                im.retailprice AS RETAIL,
+                im.currentstock AS stock,
+                im.QUANTITYLIMIT AS LIMIT,
+                im.itemflag,
+                im.description,
+                c.name AS MICRO,
+                b.name AS brand,
+                o.name AS origin,
+                p.name AS propertyname,
+                MAX(hdr.billdate) AS lastdate,
+                MAX(hdr.billno) AS billno,
+                MAX(hdr.customercode) AS customercode
+            FROM 
+                itemmaster im
+                JOIN (SELECT code, name FROM category WHERE flag = 'C') c ON im.categorycode = c.code
+                JOIN (SELECT code, name FROM category WHERE flag = 'B') b ON im.brandcode = b.code
+                JOIN (SELECT code, name FROM tblitemorigin) o ON im.origin = o.code
+                JOIN (SELECT code, name FROM tblitemproperty) p ON im.property = p.code
+                JOIN billdtlhistory dtl ON dtl.itemcode = im.itemcode
+                JOIN billhdrhistory hdr ON dtl.billno = hdr.billno
+            WHERE 
+                hdr.customercode = :customer_code
+            GROUP BY 
+                im.itemcode, im.itemname, im.baseuom, im.retailprice, im.currentstock, 
+                im.QUANTITYLIMIT, c.name, b.name, o.name, p.name, im.description, 
+                im.itemflag, im.ownproduct
+            ORDER BY 
+                billno, itemname DESC
+        """
+        
+        cursor.execute(query, {"customer_code": customer_code})
+        items = cursor.fetchall()
+
+        if not items:
+            return jsonify([])  # Return an empty list if no items found
+
+        # Format the results into a list of dictionaries
+        purchased_items = [
+            {
+                "itemCode": row[0],
+                "itemName": row[1],
+                "unit": row[2],
+                "retail": float(row[3]),
+                "stock": row[4],
+                "limit": row[5],
+                "itemFlag": row[6],
+                "description": row[7],
+                "micro": row[8],
+                "brand": row[9],
+                "origin": row[10],
+                "propertyName": row[11],
+                "lastDate": row[12],
+                "billNo": row[13],
+                "customerCode": row[14]
+            }
+            for row in items
+        ]
+        
+        return jsonify(purchased_items)
+
+    except cx_Oracle.DatabaseError as e:
+        error, = e.args
+        print("Database error:", error.message)
+        return jsonify({"error": "Database error: " + error.message}), 500
+    except Exception as e:
+        print("Error executing query:", e)
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            pool.release(connection)
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+
 
 
 
