@@ -118,7 +118,7 @@ def index():
                                CREDIT_AMOUNT, CATEGORY, CATEGORYNAME, ROUTE, ROUTENAME,
                                SALESMAN, SALESMANNAME, TYPE, MOBILE
                         FROM customers
-                        ORDER BY CUST_CODE
+                        ORDER BY CUST_CODE 
                     ) a WHERE ROWNUM <= :max_row
                 ) WHERE rn > :offset
             """, {'max_row': offset + PER_PAGE, 'offset': offset})
@@ -158,20 +158,25 @@ def test_db():
         with pool.acquire() as connection:
             cursor = connection.cursor()
 
-            # Oracle table names are typically stored in uppercase
-            query = "SELECT column_name FROM all_tab_columns WHERE table_name = 'ITEMMASTERDETAILS'"
+            # Replace 'YOUR_SCHEMA_NAME' with actual schema if needed
+            query = """
+                SELECT COLUMN_NAME 
+                FROM ALL_TAB_COLUMNS 
+                WHERE TABLE_NAME = 'CUSTOMERS'
+            """
             cursor.execute(query)
-
             rows = cursor.fetchall()
-            col_names = [desc[0] for desc in cursor.description]
-            results = [dict(zip(col_names, row)) for row in rows]
 
-            # Create HTML output with index
-            html = "<h2>DB Test - Basic Item Info</h2><ul>"
-            for idx, row in enumerate(results, start=1):
-                html += f"<li><b>Index {idx}:</b><br>" + "<br>".join(f"<b>{k}</b>: {v}" for k, v in row.items()) + "</li><br>"
+            html = "<h2>DB Test - Column Names from 'CUSTOMERS'</h2><ul>"
+            html += f"<p>Rows fetched: {len(rows)}</p>"
+
+            if not rows:
+                html += "<p><b>No columns found. Check table name or schema.</b></p>"
+
+            for idx, row in enumerate(rows, start=1):
+                html += f"<li><b>Index {idx}:</b> {row[0]}</li><br>"
+
             html += "</ul>"
-
             return html
 
     except Exception as e:
@@ -260,155 +265,104 @@ def itempage():
 
 
 
-from flask import jsonify, request
+
 
 @app.route("/search_items")
 def search_items():
-    itemcode = request.args.get("itemcode", "").strip().lower()
-    customer = request.args.get("customer", "").strip().lower()
-    itemname = request.args.get("itemname", "").strip().lower()
-    category = request.args.get("category", "").strip().lower()
+       itemcode = request.args.get("itemcode", "").strip().lower()
+       customer = request.args.get("customer", "").strip().lower()
+       itemname = request.args.get("itemname", "").strip().lower()
+       category = request.args.get("category", "").strip().lower()
 
-    with pool.acquire() as connection:
-        cursor = connection.cursor()
+       with pool.acquire() as connection:
+           cursor = connection.cursor()
 
-        query = """
-            SELECT 
-                i.ITEMCODE,
-                i.ITEMNAME,
-                i.RETAILPRICE,
-                i.UNIT,
-                i.CATEGORYNAME,
-                i.BARCODE,
-                i.LOCATIONCODE,
-                l.LOCATIONNAME
-            FROM 
-                ITEMMASTERDETAILS i
-            JOIN 
-                LOCATIONMASTER l
-            ON 
-                i.LOCATIONCODE = l.LOCATIONCODE WHERE 1=1 and TABLES='MASTER' and BaselocationFlag='Y'
-        """
+           query = """
+               SELECT 
+                   i.ITEMCODE,
+                   i.ITEMNAME,
+                   i.RETAILPRICE,
+                   i.UNIT,
+                   i.CATEGORYNAME,
+                   i.BARCODE,
+                   i.LOCATIONCODE,
+                   l.LOCATIONNAME
+               FROM 
+                   ITEMMASTERDETAILS i
+               JOIN 
+                   LOCATIONMASTER l
+               ON 
+                   i.LOCATIONCODE = l.LOCATIONCODE WHERE 1=1 and TABLES='MASTER' and BaselocationFlag='Y'
+           """
 
-        params = {}
+           params = {}
 
-        if itemcode:
-            query += " AND LOWER(ITEMCODE) LIKE :itemcode"
-            params["itemcode"] = f"%{itemcode}%"
+           if itemcode:
+               query += " AND LOWER(ITEMCODE) LIKE :itemcode"
+               params["itemcode"] = f"%{itemcode}%"
 
-        if itemname:
-            query += " AND LOWER(ITEMNAME) LIKE :itemname"
-            params["itemname"] = f"%{itemname}%"
+           if itemname:
+               query += " AND LOWER(ITEMNAME) LIKE :itemname"
+               params["itemname"] = f"%{itemname}%"
 
-        if customer:
-            query += " AND LOWER(SUPPLIERNAME) LIKE :customer"
-            params["customer"] = f"%{customer}%"
+           if customer:
+               query += " AND LOWER(SUPPLIERNAME) LIKE :customer"
+               params["customer"] = f"%{customer}%"
 
-        if category:
-            query += " AND LOWER(CATEGORYNAME) LIKE :category"
-            params["category"] = f"%{category}%"
+           if category:
+               query += " AND LOWER(CATEGORYNAME) LIKE :category"
+               params["category"] = f"%{category}%"
 
+           # ✅ Oracle-compatible limit clause
+           query += " AND ROWNUM <= 50"
 
-        # ✅ Oracle-compatible limit clause
-        query += " AND ROWNUM <= 50"
+           try:
+               cursor.execute(query, params)
+               columns = [col[0].lower() for col in cursor.description]
+               rows = cursor.fetchall()
+               
+               if not rows:  # Check if rows is empty
+                   return jsonify([])  # Return an empty list if no items found
 
-        try:
-            cursor.execute(query, params)
-            columns = [col[0].lower() for col in cursor.description]
-            rows = cursor.fetchall()
-            
-            items = [dict(zip(columns, row)) for row in rows]
-            print(items)
-            print(items[0])
-            print(type(items[0]["retailprice"]))
+               items = [dict(zip(columns, row)) for row in rows]
+               print(items)
+               print(items[0])  # This line may cause an error if items is empty
+               print(type(items[0]["retailprice"]))
 
-        except Exception as e:
-            print("Error executing query:", e)
-            return jsonify({"error": "Query failed"}), 500
-        finally:
-            cursor.close()
+           except Exception as e:
+               print("Error executing query:", e)
+               return jsonify({"error": "Query failed"}), 500
+           finally:
+               cursor.close()
 
-    return jsonify(items)
+       return jsonify(items)
 
+@app.route("/api/customer_code", methods=["GET"])
+def get_customer_code():
+    customer_name = request.args.get("customer_name", "").strip()
+    
+    if not customer_name:
+        return jsonify({"error": "Customer name is required."}), 400
 
-
-@app.route("/api/purchased_items", methods=["GET"])
-def get_purchased_items():
-    customer_code = request.args.get("customer_code", "").strip()
-    connection = None
-    cursor = None
     try:
-        if not customer_code:
-            return jsonify({"error": "Customer code is required."}), 400
+        with pool.acquire() as connection:
+            cursor = connection.cursor()
+            
+            # Update the query with the correct schema if necessary
+            query = """
+                SELECT CUST_CODE 
+                FROM customers  
+                WHERE LOWER(CUST_NAME) = LOWER(:customer_name)
+            """
+            
+            cursor.execute(query, {"customer_name": customer_name})
+            result = cursor.fetchone()
 
-        connection = pool.acquire()
-        cursor = connection.cursor()
-        
-        # SQL query to fetch purchased items for the given customer code
-        query = """
-            SELECT DISTINCT 
-                im.itemcode,
-                im.itemname,
-                im.baseuom AS unit,
-                im.retailprice AS RETAIL,
-                im.currentstock AS stock,
-                im.QUANTITYLIMIT AS LIMIT,
-                im.itemflag,
-                im.description,
-                c.name AS MICRO,
-                b.name AS brand,
-                o.name AS origin,
-                p.name AS propertyname,
-                MAX(hdr.billdate) AS lastdate,
-                MAX(hdr.billno) AS billno,
-                MAX(hdr.customercode) AS customercode
-            FROM 
-                itemmaster im
-                JOIN (SELECT code, name FROM category WHERE flag = 'C') c ON im.categorycode = c.code
-                JOIN (SELECT code, name FROM category WHERE flag = 'B') b ON im.brandcode = b.code
-                JOIN (SELECT code, name FROM tblitemorigin) o ON im.origin = o.code
-                JOIN (SELECT code, name FROM tblitemproperty) p ON im.property = p.code
-                JOIN billdtlhistory dtl ON dtl.itemcode = im.itemcode
-                JOIN billhdrhistory hdr ON dtl.billno = hdr.billno
-            WHERE 
-                hdr.customercode = :customer_code
-            GROUP BY 
-                im.itemcode, im.itemname, im.baseuom, im.retailprice, im.currentstock, 
-                im.QUANTITYLIMIT, c.name, b.name, o.name, p.name, im.description, 
-                im.itemflag, im.ownproduct
-            ORDER BY 
-                billno, itemname DESC
-        """
-        
-        cursor.execute(query, {"customer_code": customer_code})
-        items = cursor.fetchall()
-
-        if not items:
-            return jsonify([])  # Return an empty list if no items found
-
-        # Format the results into a list of dictionaries
-        purchased_items = [
-            {
-                "itemCode": row[0],
-                "itemName": row[1],
-                "unit": row[2],
-                "retail": float(row[3]),
-                "stock": row[4],
-                "limit": row[5],
-                "itemFlag": row[6],
-                "description": row[7],
-                "micro": row[8],
-                "brand": row[9],
-                "origin": row[10],
-                "propertyName": row[11],
-                "lastDate": row[12],
-                "billNo": row[13],
-                "customerCode": row[14]
-            }
-            for row in items
-        ]
-        
-        return jsonify(purchased_items)
+            if result is None:
+                return jsonify({"error": "Customer not found."}), 404
+            
+            customer_code = result[0]
+            return jsonify({"customer_code": customer_code})
 
     except cx_Oracle.DatabaseError as e:
         error, = e.args
@@ -417,15 +371,129 @@ def get_purchased_items():
     except Exception as e:
         print("Error executing query:", e)
         return jsonify({"error": str(e)}), 500
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            pool.release(connection)
+    
+@app.route("/get_item_units", methods=["GET"])
+def get_item_units():
+    item_code = request.args.get("itemcode", "").strip()
+    
+    if not item_code:
+        return jsonify({"error": "Item code is required."}), 400
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    try:
+        with pool.acquire() as connection:
+            cursor = connection.cursor()
+            query = """
+                SELECT DISTINCT UNIT FROM ITEMMASTERDETAILS WHERE ITEMCODE = :itemcode
+            """
+            cursor.execute(query, {"itemcode": item_code})
+            units = cursor.fetchall()
 
+            if not units:
+                return jsonify([])  # Return an empty list if no units found
+
+            # Format the results into a list
+            unit_list = [row[0] for row in units]
+            return jsonify(unit_list)
+
+    except cx_Oracle.DatabaseError as e:
+        error, = e.args
+        print("Database error:", error.message)
+        return jsonify({"error": "Database error: " + error.message}), 500
+    except Exception as e:
+        print("Error executing query:", e)
+        return jsonify({"error": str(e)}), 500
+
+
+
+@app.route("/api/purchased_items", methods=["GET"])
+def get_purchased_items():
+    customer_code = request.args.get("customer_code", "").strip()
+    
+    if not customer_code:
+        return jsonify({"error": "Customer code is required."}), 400
+
+    try:
+        with pool.acquire() as connection:
+            cursor = connection.cursor()
+            
+            # Update the query with the correct schema if necessary
+            query = """
+                SELECT DISTINCT 
+                    im.itemcode,
+                    im.itemname,
+                    im.baseuom AS unit,
+                    im.retailprice AS retail,
+                    im.currentstock AS stock,
+                    im.QUANTITYLIMIT AS limit,
+                    im.description,
+                    c.name AS micro,
+                    b.name AS brand,
+                    o.name AS origin,
+                    p.name AS propertyname,
+                    MAX(hdr.billdate) AS lastdate,
+                    MAX(hdr.billno) AS billno,
+                    MAX(hdr.customercode) AS customercode
+                FROM 
+                    itemmaster im
+                JOIN 
+                    (SELECT code, name FROM category WHERE flag = 'C') c ON im.categorycode = c.code
+                JOIN 
+                    (SELECT code, name FROM category WHERE flag = 'B') b ON im.brandcode = b.code
+                JOIN 
+                    (SELECT code, name FROM tblitemorigin) o ON im.origin = o.code
+                JOIN 
+                    (SELECT code, name FROM tblitemproperty) p ON im.property = p.code
+                JOIN 
+                    billdtlhistory dtl ON dtl.itemcode = im.itemcode
+                JOIN 
+                    billhdrhistory hdr ON dtl.billno = hdr.billno
+                WHERE 
+                    hdr.customercode = :customer_code
+                GROUP BY 
+                    im.itemcode, im.itemname, im.baseuom, im.retailprice, im.currentstock, 
+                    im.QUANTITYLIMIT, c.name, b.name, o.name, p.name, im.description, im.itemflag, 
+                    im.ownproduct
+                ORDER BY 
+                    billno, itemname DESC
+            """
+            
+            cursor.execute(query, {"customer_code": customer_code})
+            items = cursor.fetchall()
+
+            if not items:
+                return jsonify([])  # Return an empty list if no items found
+
+            # Format the results into a list of dictionaries
+            purchased_items = [
+                {
+                    "itemCode": row[0],
+                    "itemName": row[1],
+                    "unit": row[2],
+                    "retail": float(row[3]),
+                    "stock": row[4],
+                    "limit": row[5],
+                    "description": row[6],
+                    "micro": row[7],
+                    "brand": row[8],
+                    "origin": row[9],
+                    "propertyName": row[10],
+                    "lastDate": row[11],
+                    "billNo": row[12],
+                    "customerCode": row[13]
+                }
+                for row in items
+            ]
+            print(purchased_items)
+            
+            return jsonify(purchased_items)
+
+    except cx_Oracle.DatabaseError as e:
+        error, = e.args
+        print("Database error:", error.message)
+        return jsonify({"error": "Database error: " + error.message}), 500
+    except Exception as e:
+        print("Error executing query:", e)
+        return jsonify({"error": str(e)}), 500
 
 
 

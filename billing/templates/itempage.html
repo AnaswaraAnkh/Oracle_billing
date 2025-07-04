@@ -91,45 +91,50 @@
   let selectedRows = [];
 
   function fetchAndUpdateTable() {
-    const itemCode = document.getElementById("itemcode").value.trim();
-    const customer = document.getElementById("customer").value.trim();
-    const itemName = document.getElementById("itemName").value.trim();
-    const category = document.getElementById("category").value;
+  const itemCode = document.getElementById("itemcode").value.trim();
+  const itemName = document.getElementById("itemName").value.trim();
+  const category = document.getElementById("category").value;
 
-    fetch(`/search_items?itemcode=${itemCode}&customer=${customer}&itemname=${itemName}&category=${category}`)
-      .then((response) => response.json())
-      .then((data) => {
-        const tbody = document.querySelector("tbody");
-        tbody.innerHTML = "";
+  console.log("Fetching items with:", { itemCode, itemName, category });
 
-        if (data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8">No results found</td></tr>`;
-          return;
-        }
+  fetch(`/search_items?itemcode=${itemCode}&itemname=${itemName}&category=${category}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Data received:", data);
+      const tbody = document.querySelector("tbody");
+      tbody.innerHTML = ""; // Clear previous results
 
-        data.forEach((item, index) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9">No items found</td></tr>`;
+        return;
+      }
+
+      data.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
           <td>${index + 1}</td>
           <td>${item.itemcode || ""}</td>
           <td>${item.itemname || ""}</td>
-          <td>${item.barcode || ""}</td>
-          <td>${item.locationname || ""}</td>
-          <td>${item.unit || ""}</td>
-          <td>${item.qty || ""}</td>
+          <td>${item.suppliername || ""}</td>
           <td>${item.retailprice || ""}</td>
-          <td>${item.discount || ""}</td>
-          <td>${item.amount || ""}</td>
+          <td>${item.wholesaleprice || ""}</td>
+          <td>${item.categoryname || ""}</td>
+          <td>${item.barcode || ""}</td>
+          <td>${item.currentStock || ""}</td>
         `;
-
-
-          document.querySelector("tbody").appendChild(row);
-        });
-      })
-      .catch((error) => {
-        console.error("Fetch error:", error);
+        tbody.appendChild(row);
       });
-  }
+    })
+    .catch((error) => {
+      console.error("Fetch error:", error);
+    });
+}
+
 
   function getStoredItems() {
     const stored = sessionStorage.getItem("selectedItems");
@@ -154,82 +159,7 @@
   // }
 
   // Function to fetch purchased items by customer
-  function fetchPurchasedItems() {
-    const customer = document.getElementById("customer").value.trim();
-    
-    if (!customer) {
-      alert("Please enter a customer name.");
-      return;
-    }
-
-    document.getElementById("itemsTableBody").innerHTML = 
-      "<tr><td colspan='10'>Loading purchased items...</td></tr>";
-
-    fetch(`/api/purchased_items?customer=${customer}`)
-      .then(response => response.json())
-      .then(data => {
-        currentDisplayMode = 'purchased';
-        if (data.length === 0) {
-          renderItemsTable([], 'No previous purchases found for this customer.');
-        } else {
-          renderItemsTable(data, null, true);
-        }
-      })
-      .catch(error => {
-        console.error("Error fetching purchased items:", error);
-        document.getElementById("itemsTableBody").innerHTML = 
-          `<tr><td colspan='10'>Error loading purchased items</td></tr>`;
-      });
-  }
-
-  // Generic function to render items in the table
-  function renderItemsTable(items, emptyMessage = 'No items found.', isPurchaseData = false) {
-    const tbody = document.getElementById("itemsTableBody");
-    tbody.innerHTML = "";
-
-    if (items.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="10">${emptyMessage}</td></tr>`;
-      return;
-    }
-
-    items.forEach((item, index) => {
-      const row = document.createElement("tr");
-      
-      if (isPurchaseData) {
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${item.itemcode}</td>
-          <td>${item.itemname}</td>
-          <td>${item.suppliername || '-'}</td>
-          <td>${item.retailprice ? item.retailprice.toFixed(2) : '-'}</td>
-          <td>${item.wholesaleprice ? item.wholesaleprice.toFixed(2) : '-'}</td>
-          <td>${item.categoryname || '-'}</td>
-          <td>${item.barcode || '-'}</td>
-          <td>${item.currentstock || '-'}</td>
-          <td class="last-purchased">
-            ${item.lastdate ? new Date(item.lastdate).toLocaleDateString() : 'N/A'}
-            <div class="purchase-info">Qty: ${item.quantity || 0}</div>
-          </td>
-        `;
-      } else {
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${item.itemcode || '-'}</td>
-          <td>${item.itemname || '-'}</td>
-          <td>${item.suppliername || '-'}</td>
-          <td>${item.retailprice || '-'}</td>
-          <td>${item.wholesaleprice || '-'}</td>
-          <td>${item.categoryname || '-'}</td>
-          <td>${item.barcode || '-'}</td>
-          <td>${item.currentstock || '-'}</td>
-          <td>-</td>
-        `;
-      }
-      
-      tbody.appendChild(row);
-    });
-  }
-
+  
   document.addEventListener("DOMContentLoaded", function () {
     
     // Load the selected customer from session storage
@@ -268,15 +198,16 @@
 
   const cells = row.querySelectorAll("td");
   const rowData = {
-    itemcode: cells[1]?.innerText || "", // Assuming Item Code is in the first column
-    itemname: cells[2]?.innerText || "", // Assuming Item Name is in the second column
-    barcode: cells[3]?.innerText || "", // Assuming Barcode is in the third column
-    locationname: cells[4]?.innerText || "", // Assuming Store is in the fourth column
-    unit: cells[5]?.innerText || "", // Assuming Unit is in the fifth column
-    qty:   0, // Assuming Quantity is in the sixth column
-    retailprice: parseFloat(cells[7]?.innerText) || 0.0, // Assuming Rate is in the seventh column
-    discount: "", // You can set this based on your logic
-    amount:"" // Assuming Amount is in the ninth column
+    itemcode: cells[1]?.innerText || "", // ITEMCODE
+    itemname: cells[2]?.innerText || "", // ITEMNAME
+    suppliername: cells[3]?.innerText || "", // SUPPLIERNAME
+    barcode: cells[7]?.innerText || "", // BARCODE
+    locationname: cells[8]?.innerText || "", // Assuming you want to fetch location name from another source
+    unit: cells[5]?.innerText || "", // WHOLESALEPRICE (if this is meant to be the unit, adjust accordingly)
+    qty: 0, // Default quantity
+    retailprice: parseFloat(cells[4]?.innerText) || 0.0, // RETAILPRICE
+    discount: "", // Set based on your logic
+    amount: "" // Assuming Amount is in another column, adjust as needed
 };
 
 
@@ -333,6 +264,137 @@ loadBtn.addEventListener("click", () => {
   multiSelectMode = false;
   window.location.replace("/"); // ✅ Go back to index
 });
+
+
+
+
+document.getElementById("searchCustomerBtn").addEventListener("click", function() {
+  const customerName = document.getElementById("customer").value.trim(); // Get the customer name from the input
+
+  if (!customerName) {
+    alert("Please enter a customer name."); // Alert if no customer name is provided
+    return;
+  }
+
+  // Clear the table before fetching new data
+  const tbody = document.querySelector("tbody");
+  tbody.innerHTML = ""; // Clear previous results
+
+  // Fetch the customer code based on the customer name
+  fetch(`/api/customer_code?customer_name=${encodeURIComponent(customerName)}`)
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => { throw new Error(err.error || "Unknown error"); });
+      }
+      return response.json();
+    })
+    .then(data => {
+      const customerCode = data.customer_code; // Get the customer code from the response
+
+      // Now fetch purchased items for the specified customer code
+      return fetch(`/api/purchased_items?customer_code=${encodeURIComponent(customerCode)}`);
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => { throw new Error(err.error || "Unknown error"); });
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Data received:", data); // Log the data to see its structure
+      if (!Array.isArray(data)) {
+        throw new Error("Expected an array but received: " + JSON.stringify(data));
+      }
+
+      // Clear the table before displaying new results
+      tbody.innerHTML = ""; // Clear previous results
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9">No purchased items found for this customer.</td></tr>`; // Show message if no items found
+        return;
+      }
+
+      // Populate the table with the purchased items
+      data.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.itemCode || ""}</td>
+          <td>${item.itemName || ""}</td>
+          <td>${item.suppliername || ""}</td>
+          <td>${item.retail || ""}</td>
+          <td>${item.wholesale || ""}</td>
+          <td>${item.categoryname || ""}</td>
+          <td>${item.barcode || ""}</td>
+          <td>${item.currentStock || ""}</td>
+        `;
+        tbody.appendChild(row); // Append the new row to the table body
+      });
+    })
+    .catch(error => {
+      console.error("Fetch error:", error); // Log any errors
+      alert(error.message); // Alert the user if there was an error
+    });
+});
+document.addEventListener("DOMContentLoaded", function () {
+  const table = document.querySelector(".tableDiv table");
+  let selectedRowIndex = -1; // To keep track of the currently selected row
+
+  // Function to highlight the selected row
+  function highlightRow(index) {
+    const rows = table.querySelectorAll("tbody tr");
+    rows.forEach((row, i) => {
+      if (i === index) {
+        row.classList.add("selected");
+      } else {
+        row.classList.remove("selected");
+      }
+    });
+  }
+
+  // Event listener for keydown events
+  document.addEventListener("keydown", function (event) {
+    const rows = table.querySelectorAll("tbody tr");
+    if (rows.length === 0) return; // No rows to navigate
+
+    if (event.key === "ArrowDown") {
+      // Move down
+      selectedRowIndex = (selectedRowIndex + 1) % rows.length; // Wrap around
+      highlightRow(selectedRowIndex);
+      event.preventDefault(); // Prevent default scrolling behavior
+    } else if (event.key === "ArrowUp") {
+      // Move up
+      selectedRowIndex = (selectedRowIndex - 1 + rows.length) % rows.length; // Wrap around
+      highlightRow(selectedRowIndex);
+      event.preventDefault(); // Prevent default scrolling behavior
+    } else if (event.key === "Enter") {
+      // Load the selected item
+      if (selectedRowIndex >= 0) {
+        const selectedRow = rows[selectedRowIndex];
+        const cells = selectedRow.querySelectorAll("td");
+        const rowData = {
+          itemcode: cells[1]?.innerText || "",
+          itemname: cells[2]?.innerText || "",
+          suppliername: cells[3]?.innerText || "",
+          barcode: cells[7]?.innerText || "",
+          retailprice: parseFloat(cells[4]?.innerText) || 0.0,
+          // Add any other necessary fields here
+        };
+
+        // Store the selected item in sessionStorage or handle it as needed
+        const existing = JSON.parse(sessionStorage.getItem("selectedItems") || "[]");
+        const exists = existing.some(r => r.itemcode === rowData.itemcode && r.itemname === rowData.itemname);
+        if (!exists) existing.push(rowData);
+        sessionStorage.setItem("selectedItems", JSON.stringify(existing));
+
+        // Redirect or load the index page
+        window.location.replace("/"); // Adjust the URL as needed
+      }
+    }
+  });
+});
+
+
 
 
 
